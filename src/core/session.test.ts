@@ -54,6 +54,12 @@ describe("createScrubSession", () => {
 		expect(s.move(2, { shift: true })).toBe(71);
 	});
 
+	it("rounds like Shift alone when Shift and Alt are both held", () => {
+		const s = createScrubSession(160);
+		expect(s.move(4, { alt: true })).toBe(160.4);
+		expect(s.move(1, { shift: true, alt: true })).toBe(170);
+	});
+
 	it("clamps to min and max without building up overshoot", () => {
 		const s = createScrubSession(5, { min: 0, max: 10 });
 		expect(s.move(-100)).toBe(0);

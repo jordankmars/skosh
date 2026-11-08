@@ -39,7 +39,7 @@ export function createScrubSession(
 		move(dx, mods = {}) {
 			total = clamp(total + dx * perPx * modifierMultiplier(mods), min, max);
 			value = clamp(
-				roundToStep(total, mods.alt ? step * FINE : step),
+				roundToStep(total, mods.alt && !mods.shift ? step * FINE : step),
 				min,
 				max,
 			);
