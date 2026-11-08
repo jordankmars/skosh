@@ -1,5 +1,5 @@
 import { clamp, roundToStep } from "./number";
-import { FINE, modifierMultiplier } from "./session";
+import { modifierMultiplier, snapStep } from "./session";
 import type { Modifiers, ScrubOptions } from "./types";
 
 const DIRECTION: Record<string, number> = { ArrowUp: 1, ArrowDown: -1 };
@@ -23,14 +23,15 @@ export function stepValue(
 	options: ScrubOptions = {},
 ): number | null {
 	const step = options.step ?? 1;
-	const delta = stepFromKey(key, mods, step);
+	const snap = snapStep(mods, options);
+	const fine = mods.alt && !mods.shift;
+	const delta = fine
+		? stepFromKey(key, {}, snap)
+		: stepFromKey(key, mods, step);
 	if (delta === null) return null;
 	const min = options.min ?? Number.NEGATIVE_INFINITY;
 	const max = options.max ?? Number.POSITIVE_INFINITY;
-	const next = roundToStep(
-		value + delta,
-		mods.alt && !mods.shift ? step * FINE : step,
-	);
+	const next = roundToStep(value + delta, snap);
 	return clamp(next, min, max);
 }
 

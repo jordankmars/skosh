@@ -10,6 +10,18 @@ export function modifierMultiplier(mods: Modifiers = {}): number {
 	return 1;
 }
 
+/** What a value snaps to for the modifiers held. Fine steps stop at `precision` if it's set. */
+export function snapStep(
+	mods: Modifiers = {},
+	options: ScrubOptions = {},
+): number {
+	const step = options.step ?? 1;
+	if (!mods.alt || mods.shift) return step;
+	const fine = Number((step * FINE).toPrecision(12));
+	if (options.precision === undefined) return fine;
+	return Math.min(step, Math.max(fine, 10 ** -options.precision));
+}
+
 export interface ScrubSession {
 	/** Feed a horizontal pointer delta in pixels and get the new value back. */
 	move(dx: number, mods?: Modifiers): number;
@@ -38,11 +50,7 @@ export function createScrubSession(
 	return {
 		move(dx, mods = {}) {
 			total = clamp(total + dx * perPx * modifierMultiplier(mods), min, max);
-			value = clamp(
-				roundToStep(total, mods.alt && !mods.shift ? step * FINE : step),
-				min,
-				max,
-			);
+			value = clamp(roundToStep(total, snapStep(mods, options)), min, max);
 			return value;
 		},
 		get value() {

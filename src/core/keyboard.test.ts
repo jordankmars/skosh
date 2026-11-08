@@ -33,6 +33,25 @@ describe("stepValue", () => {
 		expect(stepValue(0.2, "ArrowUp", { alt: true })).toBe(0.3);
 	});
 
+	it("moves by a whole step with Alt when the precision is 0", () => {
+		const whole = { step: 1, precision: 0 };
+		expect(stepValue(10, "ArrowUp", { alt: true }, whole)).toBe(11);
+		expect(stepValue(10, "ArrowDown", { alt: true }, whole)).toBe(9);
+	});
+
+	it("keeps tenths with Alt when the precision allows them", () => {
+		expect(stepValue(10, "ArrowUp", { alt: true }, { precision: 1 })).toBe(
+			10.1,
+		);
+	});
+
+	it("lets Shift win over Alt", () => {
+		const whole = { step: 1, precision: 0 };
+		expect(stepValue(10, "ArrowUp", { shift: true, alt: true }, whole)).toBe(
+			20,
+		);
+	});
+
 	it("snaps an off-step value back onto the grid", () => {
 		expect(stepValue(10.4, "ArrowUp")).toBe(11);
 	});

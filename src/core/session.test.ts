@@ -60,6 +60,27 @@ describe("createScrubSession", () => {
 		expect(s.move(1, { shift: true, alt: true })).toBe(170);
 	});
 
+	it("stops fine steps at the precision", () => {
+		const s = createScrubSession(10, { step: 1, precision: 0 });
+		expect(s.move(3, { alt: true })).toBe(10);
+		expect(s.move(2, { alt: true })).toBe(11);
+	});
+
+	it("keeps tenths when the precision allows them", () => {
+		const s = createScrubSession(10, { precision: 1 });
+		expect(s.move(3, { alt: true })).toBe(10.3);
+	});
+
+	it("never snaps coarser than the step because of precision", () => {
+		const s = createScrubSession(0, { step: 0.1, perPx: 0.1, precision: 0 });
+		expect(s.move(30, { alt: true })).toBe(0.3);
+	});
+
+	it("keeps fine steps clean on decimal steps", () => {
+		const s = createScrubSession(1, { step: 0.1, perPx: 0.1 });
+		expect(s.move(3, { alt: true })).toBe(1.03);
+	});
+
 	it("clamps to min and max without building up overshoot", () => {
 		const s = createScrubSession(5, { min: 0, max: 10 });
 		expect(s.move(-100)).toBe(0);

@@ -16,5 +16,6 @@ export {
 	createScrubSession,
 	FINE,
 	modifierMultiplier,
+	snapStep,
 } from "./session";
 export type { Modifiers, ScrubOptions } from "./types";
