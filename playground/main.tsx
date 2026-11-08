@@ -1,9 +1,12 @@
 // Dev playground for the core. Everything is wired by hand on this page so the
 // core can be tried out before any adapter exists.
 import {
+	createRef,
 	type KeyboardEvent,
 	type PointerEvent,
 	StrictMode,
+	useCallback,
+	useEffect,
 	useRef,
 	useState,
 } from "react";
@@ -13,10 +16,12 @@ import {
 	createScrubSession,
 	editKeyAction,
 	formatValue,
+	type Point,
 	parseValue,
 	type ScrubOptions,
 	type ScrubSession,
 	stepValue,
+	wrapCursor,
 } from "../src/core";
 
 type FieldKey = "w" | "r" | "rot" | "op";
@@ -37,6 +42,27 @@ const INITIAL: Record<FieldKey, number> = { w: 160, r: 20, rot: 0, op: 100 };
 
 const LOCALES = ["en-US", "de-DE", "fr-FR"];
 
+// Under pointer lock the real cursor is hidden, so we draw one that wraps
+// around the window edges instead. There's only ever one drag at a time.
+const virtualCursor = createRef<HTMLDivElement>();
+
+function placeCursor({ x, y }: Point) {
+	const el = virtualCursor.current;
+	if (el) el.style.transform = `translate(${x}px, ${y}px)`;
+}
+
+function showCursor(visible: boolean) {
+	virtualCursor.current?.classList.toggle("visible", visible);
+}
+
+function requestLock(el: HTMLElement) {
+	try {
+		// Returns a promise in newer browsers, which rejects if the lock is refused.
+		// Either way pointer capture is already running, so the drag keeps working.
+		Promise.resolve(el.requestPointerLock()).catch(() => {});
+	} catch {}
+}
+
 interface FieldProps {
 	config: FieldConfig;
 	locale: string;
@@ -46,7 +72,10 @@ interface FieldProps {
 
 function ScrubField({ config, locale, value, onChange }: FieldProps) {
 	const session = useRef<ScrubSession | null>(null);
+	const handle = useRef<HTMLSpanElement>(null);
 	const lastX = useRef(0);
+	const cursor = useRef<Point>({ x: 0, y: 0 });
+	const lockRequested = useRef(false);
 	const reverting = useRef(false);
 	const [scrubbing, setScrubbing] = useState(false);
 	const [draft, setDraft] = useState<string | null>(null);
@@ -55,27 +84,76 @@ function ScrubField({ config, locale, value, onChange }: FieldProps) {
 	const commit = (n: number) =>
 		onChange(clamp(n, config.min ?? -Infinity, config.max ?? Infinity));
 
+	const isLocked = () =>
+		handle.current !== null && document.pointerLockElement === handle.current;
+
 	const onPointerDown = (e: PointerEvent<HTMLSpanElement>) => {
 		e.preventDefault();
 		e.currentTarget.setPointerCapture(e.pointerId);
 		session.current = createScrubSession(value, config);
 		lastX.current = e.clientX;
+		lockRequested.current = false;
 		setScrubbing(true);
 		document.body.classList.add("scrubbing");
 	};
 
 	const onPointerMove = (e: PointerEvent<HTMLSpanElement>) => {
 		if (!session.current) return;
-		const dx = e.clientX - lastX.current;
-		lastX.current = e.clientX;
+		let dx: number;
+		if (isLocked()) {
+			// clientX stops changing under lock, so read the raw movement instead.
+			// Chrome sometimes reports one huge jump right after locking; skip it.
+			if (Math.abs(e.movementX) > window.innerWidth / 2) return;
+			dx = e.movementX;
+			cursor.current = wrapCursor(
+				cursor.current,
+				{ x: e.movementX, y: e.movementY },
+				{ width: window.innerWidth, height: window.innerHeight },
+			);
+			placeCursor(cursor.current);
+		} else {
+			dx = e.clientX - lastX.current;
+			lastX.current = e.clientX;
+			cursor.current = { x: e.clientX, y: e.clientY };
+			// Lock once the drag actually moves, so a plain click never hides the cursor.
+			if (!lockRequested.current && dx !== 0 && e.pointerType === "mouse") {
+				lockRequested.current = true;
+				requestLock(e.currentTarget);
+			}
+		}
 		onChange(session.current.move(dx, { shift: e.shiftKey, alt: e.altKey }));
 	};
 
-	const stop = () => {
+	const stop = useCallback(() => {
 		session.current = null;
 		setScrubbing(false);
 		document.body.classList.remove("scrubbing");
-	};
+		if (handle.current && document.pointerLockElement === handle.current) {
+			document.exitPointerLock();
+		}
+	}, []);
+
+	useEffect(() => {
+		const onLockChange = () => {
+			const locked =
+				handle.current !== null &&
+				document.pointerLockElement === handle.current;
+			// The lock is granted asynchronously, so a quick flick can finish
+			// before it arrives. Let it go straight away if so.
+			if (locked && !session.current) {
+				document.exitPointerLock();
+				return;
+			}
+			if (locked) placeCursor(cursor.current);
+			showCursor(locked);
+			// Losing the lock mid-drag (Escape, switching tabs) ends the drag, since
+			// the real cursor reappears somewhere else.
+			if (!locked && session.current && lockRequested.current) stop();
+		};
+		document.addEventListener("pointerlockchange", onLockChange);
+		return () =>
+			document.removeEventListener("pointerlockchange", onLockChange);
+	}, [stop]);
 
 	const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
 		const stepped = stepValue(
@@ -110,6 +188,7 @@ function ScrubField({ config, locale, value, onChange }: FieldProps) {
 			{/* biome-ignore lint/a11y/noStaticElementInteractions: see above */}
 			{/* biome-ignore lint/a11y/useKeyWithClickEvents: the click handler only stops the label focusing the input */}
 			<span
+				ref={handle}
 				className="sf-l"
 				onPointerDown={onPointerDown}
 				onPointerMove={onPointerMove}
@@ -146,6 +225,7 @@ function App() {
 				<p>
 					Drag a field's label left or right to change it. Hold Shift for ×10
 					and Alt for fine steps, or type a value or a bit of math like 120*2.
+					Keep dragging past the edge of the window and the cursor wraps around.
 				</p>
 			</header>
 			<section className="stage">
@@ -189,6 +269,26 @@ function App() {
 				))}
 			</div>
 			<pre className="state">{JSON.stringify(values)}</pre>
+			<div ref={virtualCursor} className="vcursor">
+				<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+					<path
+						d="M7 8 3 12l4 4M17 8l4 4-4 4M3 12h18"
+						fill="none"
+						stroke="#fff"
+						strokeWidth="4"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					/>
+					<path
+						d="M7 8 3 12l4 4M17 8l4 4-4 4M3 12h18"
+						fill="none"
+						stroke="#000"
+						strokeWidth="1.75"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					/>
+				</svg>
+			</div>
 		</main>
 	);
 }
@@ -234,6 +334,8 @@ input { font: inherit; color: inherit; }
 .sf input { width: 100%; min-width: 0; border: 0; background: transparent; font-family: var(--mono); font-size: 13px; padding: 5px 2px; outline: none; font-variant-numeric: tabular-nums; }
 .sf i { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--muted); }
 body.scrubbing, body.scrubbing * { cursor: ew-resize !important; }
+.vcursor { position: fixed; top: -11px; left: -11px; z-index: 10; pointer-events: none; display: none; }
+.vcursor.visible { display: block; }
 @media (max-width: 420px) { .scrub { grid-template-columns: 1fr 150px; gap: 8px; } }
 `;
 
