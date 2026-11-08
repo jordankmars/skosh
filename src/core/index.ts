@@ -5,6 +5,8 @@ export { wrapCursor } from "./cursor";
 export { evaluate } from "./expression";
 export type { FormatOptions, ParseOptions, Separators } from "./format";
 export { formatValue, getSeparators, parseValue } from "./format";
+export type { DragIntent, DragIntentState } from "./intent";
+export { createDragIntent, dragThreshold } from "./intent";
 export type { EditAction } from "./keyboard";
 export { editKeyAction, stepFromKey, stepValue } from "./keyboard";
 export { clamp, decimalsOf, roundToStep } from "./number";
