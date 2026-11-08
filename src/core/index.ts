@@ -1,5 +1,7 @@
 // Framework-agnostic core. Internal: not exported on its own.
 
+export type { Point, Size } from "./cursor";
+export { wrapCursor } from "./cursor";
 export { evaluate } from "./expression";
 export type { FormatOptions, ParseOptions, Separators } from "./format";
 export { formatValue, getSeparators, parseValue } from "./format";
