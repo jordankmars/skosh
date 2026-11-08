@@ -20,7 +20,7 @@ import { createGesture, type ValueGesture } from "./gesture";
 import { createPointerLock, type PointerLock } from "./pointer-lock";
 import { useLatest } from "./use-latest";
 
-export interface ScrubOptionsForHook {
+export interface UseScrubOptions {
 	value: number;
 	scrubOptions: ScrubOptions;
 	onChange: (value: number) => void;
@@ -44,7 +44,7 @@ interface Press {
 	drag: { session: ScrubSession; gesture: ValueGesture } | null;
 }
 
-export function useScrub(options: ScrubOptionsForHook) {
+export function useScrub(options: UseScrubOptions) {
 	const { value, scrubOptions, onChange, enabled, commitDraft, onTap } =
 		options;
 	const pressRef = useRef<Press | null>(null);
