@@ -35,20 +35,23 @@ const FIELDS: Record<FieldKey, FieldConfig> = {
 
 const INITIAL: Record<FieldKey, number> = { w: 160, r: 20, rot: 0, op: 100 };
 
+const LOCALES = ["en-US", "de-DE", "fr-FR"];
+
 interface FieldProps {
 	config: FieldConfig;
+	locale: string;
 	value: number;
 	onChange: (value: number) => void;
 }
 
-function ScrubField({ config, value, onChange }: FieldProps) {
+function ScrubField({ config, locale, value, onChange }: FieldProps) {
 	const session = useRef<ScrubSession | null>(null);
 	const lastX = useRef(0);
 	const reverting = useRef(false);
 	const [scrubbing, setScrubbing] = useState(false);
 	const [draft, setDraft] = useState<string | null>(null);
 
-	const format = (v: number) => formatValue(v, config);
+	const format = (v: number) => formatValue(v, { ...config, locale });
 	const commit = (n: number) =>
 		onChange(clamp(n, config.min ?? -Infinity, config.max ?? Infinity));
 
@@ -94,7 +97,7 @@ function ScrubField({ config, value, onChange }: FieldProps) {
 
 	const onBlur = () => {
 		if (draft !== null && !reverting.current) {
-			const n = parseValue(draft, config);
+			const n = parseValue(draft, { unit: config.unit, locale });
 			if (n !== null) commit(n);
 		}
 		reverting.current = false;
@@ -131,6 +134,7 @@ function ScrubField({ config, value, onChange }: FieldProps) {
 
 function App() {
 	const [values, setValues] = useState(INITIAL);
+	const [locale, setLocale] = useState(LOCALES[0]);
 	const set = (k: FieldKey) => (v: number) =>
 		setValues((prev) => ({ ...prev, [k]: v }));
 
@@ -162,6 +166,7 @@ function App() {
 							<ScrubField
 								key={k}
 								config={FIELDS[k]}
+								locale={locale}
 								value={values[k]}
 								onChange={set(k)}
 							/>
@@ -169,6 +174,20 @@ function App() {
 					</div>
 				</div>
 			</section>
+			<div className="bar">
+				<span>Locale</span>
+				{LOCALES.map((l) => (
+					<button
+						key={l}
+						type="button"
+						className="btn"
+						aria-pressed={l === locale}
+						onClick={() => setLocale(l)}
+					>
+						{l}
+					</button>
+				))}
+			</div>
 			<pre className="state">{JSON.stringify(values)}</pre>
 		</main>
 	);
@@ -198,6 +217,11 @@ input { font: inherit; color: inherit; }
 .top p { margin: 0; color: var(--muted); }
 .stage { height: 320px; background: var(--stage); border-radius: 10px; overflow: hidden; display: flex; align-items: center; padding: 16px; }
 .state { font: 11px var(--mono); color: var(--muted); }
+.bar { display: flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 12.5px; color: var(--muted); }
+.bar span { margin-right: 4px; }
+.btn { font: 12.5px var(--mono); color: var(--fg); padding: 5px 10px; border: 0; border-radius: 7px; background: var(--stage); cursor: pointer; }
+.btn:hover { background: var(--line); }
+.btn[aria-pressed="true"] { background: var(--accent); color: #fff; }
 
 .scrub { display: grid; grid-template-columns: 1fr 168px; gap: 14px; width: 100%; height: 100%; align-items: center; }
 .preview { display: grid; place-items: center; height: 100%; overflow: hidden; min-width: 0; }

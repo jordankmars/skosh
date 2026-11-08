@@ -1,8 +1,8 @@
 // Framework-agnostic core. Internal: not exported on its own.
 
 export { evaluate } from "./expression";
-export type { FormatOptions, ParseOptions } from "./format";
-export { formatValue, parseValue } from "./format";
+export type { FormatOptions, ParseOptions, Separators } from "./format";
+export { formatValue, getSeparators, parseValue } from "./format";
 export type { EditAction } from "./keyboard";
 export { editKeyAction, stepFromKey, stepValue } from "./keyboard";
 export { clamp, decimalsOf, roundToStep } from "./number";
