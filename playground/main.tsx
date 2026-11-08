@@ -1,38 +1,11 @@
-// Dev playground for the core. Everything is wired by hand on this page so the
-// core can be tried out before any adapter exists.
-import {
-	createRef,
-	type KeyboardEvent,
-	type PointerEvent,
-	StrictMode,
-	useCallback,
-	useEffect,
-	useRef,
-	useState,
-} from "react";
+// Dev playground: a small inspector built from the published component.
+import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
-import {
-	clamp,
-	createDragIntent,
-	createScrubSession,
-	type DragIntent,
-	dragThreshold,
-	editKeyAction,
-	formatValue,
-	type Point,
-	parseValue,
-	type ScrubOptions,
-	type ScrubSession,
-	stepValue,
-	wrapCursor,
-} from "../src/core";
+import { Skosh, type SkoshProps } from "../src/react";
 
 type FieldKey = "w" | "r" | "rot" | "op";
 
-interface FieldConfig extends ScrubOptions {
-	label: string;
-	unit: string;
-}
+type FieldConfig = Pick<SkoshProps, "label" | "unit" | "min" | "max" | "perPx">;
 
 const FIELDS: Record<FieldKey, FieldConfig> = {
 	w: { label: "W", unit: "px", min: 40, max: 240, perPx: 1 },
@@ -45,213 +18,10 @@ const INITIAL: Record<FieldKey, number> = { w: 160, r: 20, rot: 0, op: 100 };
 
 const LOCALES = ["en-US", "de-DE", "fr-FR"];
 
-// Under pointer lock the real cursor is hidden, so we draw one that wraps
-// around the window edges instead. There's only ever one drag at a time.
-const virtualCursor = createRef<HTMLDivElement>();
-
-function placeCursor({ x, y }: Point) {
-	const el = virtualCursor.current;
-	if (el) el.style.transform = `translate(${x}px, ${y}px)`;
-}
-
-function showCursor(visible: boolean) {
-	virtualCursor.current?.classList.toggle("visible", visible);
-}
-
-function requestLock(el: HTMLElement) {
-	try {
-		// Returns a promise in newer browsers, which rejects if the lock is refused.
-		// Either way pointer capture is already running, so the drag keeps working.
-		Promise.resolve(el.requestPointerLock()).catch(() => {});
-	} catch {}
-}
-
-interface FieldProps {
-	config: FieldConfig;
-	locale: string;
-	value: number;
-	onChange: (value: number) => void;
-}
-
-function ScrubField({ config, locale, value, onChange }: FieldProps) {
-	const session = useRef<ScrubSession | null>(null);
-	const handle = useRef<HTMLSpanElement>(null);
-	const input = useRef<HTMLInputElement>(null);
-	const intent = useRef<DragIntent | null>(null);
-	const start = useRef<Point>({ x: 0, y: 0 });
-	const lastX = useRef(0);
-	const cursor = useRef<Point>({ x: 0, y: 0 });
-	const lockRequested = useRef(false);
-	const reverting = useRef(false);
-	const [scrubbing, setScrubbing] = useState(false);
-	const [draft, setDraft] = useState<string | null>(null);
-
-	const format = (v: number) => formatValue(v, { ...config, locale });
-	const commit = (n: number) =>
-		onChange(clamp(n, config.min ?? -Infinity, config.max ?? Infinity));
-
-	const isLocked = () =>
-		handle.current !== null && document.pointerLockElement === handle.current;
-
-	const onPointerDown = (e: PointerEvent<HTMLSpanElement>) => {
-		if (e.button !== 0) return;
-		e.preventDefault();
-		e.currentTarget.setPointerCapture(e.pointerId);
-		intent.current = createDragIntent(dragThreshold(e.pointerType));
-		start.current = { x: e.clientX, y: e.clientY };
-		lockRequested.current = false;
-	};
-
-	const onPointerMove = (e: PointerEvent<HTMLSpanElement>) => {
-		const press = intent.current;
-		if (!press) return;
-		if (press.state === "pending") {
-			const next = press.move(
-				e.clientX - start.current.x,
-				e.clientY - start.current.y,
-			);
-			if (next === "pending") return;
-			// A vertical swipe on touch is the page scrolling, so let it go. The
-			// browser takes over through touch-action: pan-y. A mouse can't
-			// scroll this way, so any direction scrubs.
-			if (next === "scroll" && e.pointerType !== "mouse") {
-				intent.current = null;
-				return;
-			}
-			// Start from the press point so the threshold distance isn't lost.
-			session.current = createScrubSession(value, config);
-			lastX.current = start.current.x;
-			setScrubbing(true);
-			document.body.classList.add("scrubbing");
-		}
-		if (!session.current) return;
-		let dx: number;
-		if (isLocked()) {
-			// clientX stops changing under lock, so read the raw movement instead.
-			// Chrome sometimes reports one huge jump right after locking; skip it.
-			if (Math.abs(e.movementX) > window.innerWidth / 2) return;
-			dx = e.movementX;
-			cursor.current = wrapCursor(
-				cursor.current,
-				{ x: e.movementX, y: e.movementY },
-				{ width: window.innerWidth, height: window.innerHeight },
-			);
-			placeCursor(cursor.current);
-		} else {
-			dx = e.clientX - lastX.current;
-			lastX.current = e.clientX;
-			cursor.current = { x: e.clientX, y: e.clientY };
-			// Lock once the drag actually moves, so a plain click never hides the cursor.
-			if (!lockRequested.current && dx !== 0 && e.pointerType === "mouse") {
-				lockRequested.current = true;
-				requestLock(e.currentTarget);
-			}
-		}
-		onChange(session.current.move(dx, { shift: e.shiftKey, alt: e.altKey }));
-	};
-
-	const onPointerUp = () => {
-		// A tap on the label goes to the input, which matters most on touch where
-		// the label is the bigger target.
-		if (intent.current?.isTap) {
-			input.current?.focus();
-			input.current?.select();
-		}
-		stop();
-	};
-
-	const stop = useCallback(() => {
-		intent.current = null;
-		session.current = null;
-		setScrubbing(false);
-		document.body.classList.remove("scrubbing");
-		if (handle.current && document.pointerLockElement === handle.current) {
-			document.exitPointerLock();
-		}
-	}, []);
-
-	useEffect(() => {
-		const onLockChange = () => {
-			const locked =
-				handle.current !== null &&
-				document.pointerLockElement === handle.current;
-			// The lock is granted asynchronously, so a quick flick can finish
-			// before it arrives. Let it go straight away if so.
-			if (locked && !session.current) {
-				document.exitPointerLock();
-				return;
-			}
-			if (locked) placeCursor(cursor.current);
-			showCursor(document.pointerLockElement !== null);
-			// Losing the lock mid-drag (Escape, switching tabs) ends the drag, since
-			// the real cursor reappears somewhere else.
-			if (!locked && session.current && lockRequested.current) stop();
-		};
-		document.addEventListener("pointerlockchange", onLockChange);
-		return () =>
-			document.removeEventListener("pointerlockchange", onLockChange);
-	}, [stop]);
-
-	const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-		const stepped = stepValue(
-			value,
-			e.key,
-			{ shift: e.shiftKey, alt: e.altKey },
-			config,
-		);
-		if (stepped !== null) {
-			e.preventDefault();
-			onChange(stepped);
-			setDraft(format(stepped));
-			return;
-		}
-		const action = editKeyAction(e.key);
-		if (action === "revert") reverting.current = true;
-		if (action) e.currentTarget.blur();
-	};
-
-	const onBlur = () => {
-		if (draft !== null && !reverting.current) {
-			const n = parseValue(draft, { unit: config.unit, locale });
-			if (n !== null) commit(n);
-		}
-		reverting.current = false;
-		setDraft(null);
-	};
-
-	return (
-		<label className={`sf${scrubbing ? " scrubbing" : ""}`}>
-			{/* The label is a pointer-only handle. Keyboard users step with the arrow keys in the input. */}
-			{/* biome-ignore lint/a11y/noStaticElementInteractions: see above */}
-			{/* biome-ignore lint/a11y/useKeyWithClickEvents: the click handler only stops the label focusing the input */}
-			<span
-				ref={handle}
-				className="sf-l"
-				onPointerDown={onPointerDown}
-				onPointerMove={onPointerMove}
-				onPointerUp={onPointerUp}
-				onPointerCancel={stop}
-				onClick={(e) => e.preventDefault()}
-			>
-				{config.label}
-			</span>
-			<input
-				ref={input}
-				inputMode="decimal"
-				value={draft ?? format(value)}
-				onFocus={() => setDraft(format(value))}
-				onChange={(e) => setDraft(e.target.value)}
-				onKeyDown={onKeyDown}
-				onBlur={onBlur}
-			/>
-			<i>{config.unit}</i>
-		</label>
-	);
-}
-
 function App() {
 	const [values, setValues] = useState(INITIAL);
 	const [locale, setLocale] = useState(LOCALES[0]);
+	const [lastCommit, setLastCommit] = useState<number | null>(null);
 	const set = (k: FieldKey) => (v: number) =>
 		setValues((prev) => ({ ...prev, [k]: v }));
 
@@ -281,12 +51,13 @@ function App() {
 					</div>
 					<div className="panel">
 						{(Object.keys(FIELDS) as FieldKey[]).map((k) => (
-							<ScrubField
+							<Skosh
 								key={k}
-								config={FIELDS[k]}
+								{...FIELDS[k]}
 								locale={locale}
 								value={values[k]}
-								onChange={set(k)}
+								onValueChange={set(k)}
+								onValueCommit={setLastCommit}
 							/>
 						))}
 					</div>
@@ -306,27 +77,7 @@ function App() {
 					</button>
 				))}
 			</div>
-			<pre className="state">{JSON.stringify(values)}</pre>
-			<div ref={virtualCursor} className="vcursor">
-				<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-					<path
-						d="M7 8 3 12l4 4M17 8l4 4-4 4M3 12h18"
-						fill="none"
-						stroke="#fff"
-						strokeWidth="4"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					/>
-					<path
-						d="M7 8 3 12l4 4M17 8l4 4-4 4M3 12h18"
-						fill="none"
-						stroke="#000"
-						strokeWidth="1.75"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					/>
-				</svg>
-			</div>
+			<pre className="state">{JSON.stringify({ ...values, lastCommit })}</pre>
 		</main>
 	);
 }
@@ -365,21 +116,18 @@ input { font: inherit; color: inherit; }
 .preview { display: grid; place-items: center; height: 100%; overflow: hidden; min-width: 0; }
 .shape { width: 160px; aspect-ratio: 1 / 1; max-width: 100%; border-radius: 20px; background: linear-gradient(150deg, var(--accent), #8fb1ff); }
 .panel { background: var(--surface); border-radius: 12px; padding: 8px; display: grid; gap: 4px; }
-.sf { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 4px; border-radius: 7px; padding: 2px 6px 2px 2px; }
-.sf:focus-within { background: var(--stage); box-shadow: inset 0 0 0 1px var(--accent); }
-.sf.scrubbing { background: var(--accent-soft); }
-.sf-l { font-family: var(--mono); font-size: 11px; color: var(--muted); cursor: ew-resize; touch-action: pan-y; user-select: none; -webkit-user-select: none; padding: 6px 0 6px 8px; border-radius: 6px; }
-.sf-l:hover, .sf.scrubbing .sf-l { color: var(--accent); }
-.sf input { width: 100%; min-width: 0; border: 0; background: transparent; font-family: var(--mono); font-size: 13px; padding: 5px 2px; outline: none; font-variant-numeric: tabular-nums; caret-color: var(--accent); }
-.sf input::selection { background: var(--accent-soft); }
-.sf i { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--muted); }
-body.scrubbing, body.scrubbing * { cursor: ew-resize !important; }
-.vcursor { position: fixed; top: -11px; left: -11px; z-index: 10; pointer-events: none; display: none; }
-.vcursor.visible { display: block; }
+[data-skosh-root] { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 4px; border-radius: 7px; padding: 2px 6px 2px 2px; }
+[data-skosh-root]:focus-within { background: var(--stage); box-shadow: inset 0 0 0 1px var(--accent); }
+[data-skosh-root][data-scrubbing] { background: var(--accent-soft); }
+[data-skosh-label] { font-family: var(--mono); font-size: 11px; color: var(--muted); padding: 6px 0 6px 8px; border-radius: 6px; }
+[data-skosh-label]:hover, [data-scrubbing] [data-skosh-label] { color: var(--accent); }
+[data-skosh-input] { width: 100%; min-width: 0; border: 0; background: transparent; font-family: var(--mono); font-size: 13px; padding: 5px 2px; outline: none; font-variant-numeric: tabular-nums; caret-color: var(--accent); }
+[data-skosh-input]::selection { background: var(--accent-soft); }
+[data-skosh-unit] { font-family: var(--mono); font-size: 11px; color: var(--muted); }
 /* Bigger targets for fingers, and 16px text so iOS doesn't zoom in on focus. */
 @media (pointer: coarse) {
-	.sf-l { padding-block: 12px; }
-	.sf input { font-size: 16px; }
+	[data-skosh-label] { padding-block: 12px; }
+	[data-skosh-input] { font-size: 16px; }
 }
 @media (max-width: 420px) { .scrub { grid-template-columns: 1fr 150px; gap: 8px; } }
 `;

@@ -1,2 +1,3 @@
 // React adapter. Published as skosh/react.
-export {};
+export type { SkoshProps } from "./skosh";
+export { Skosh } from "./skosh";

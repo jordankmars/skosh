@@ -9,4 +9,8 @@ export default defineConfig({
 	clean: true,
 	publint: true,
 	attw: { profile: "esm-only", level: "error" },
+	outputOptions: {
+		// Server component frameworks need this on the built file itself.
+		banner: '"use client";',
+	},
 });
