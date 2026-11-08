@@ -1,11 +1,19 @@
 import {
 	type ChangeEvent,
 	type KeyboardEvent,
+	useCallback,
 	useEffect,
 	useRef,
 	useState,
 } from "react";
-import { editKeyAction } from "../core";
+import {
+	editKeyAction,
+	type ScrubOptions,
+	stepFromKey,
+	stepValue,
+} from "../core";
+import { createGesture, type ValueGesture } from "./gesture";
+import { useLatest } from "./use-latest";
 
 export interface TextEditOptions {
 	value: number;
@@ -15,6 +23,7 @@ export interface TextEditOptions {
 	onChange: (value: number) => void;
 	onCommit?: (value: number) => void;
 	editable: boolean;
+	scrubOptions: ScrubOptions;
 }
 
 /**
@@ -23,12 +32,15 @@ export interface TextEditOptions {
  * focus, and tabbing through never rewrites a value.
  */
 export function useTextEdit(options: TextEditOptions) {
-	const { value, format, parse, onChange, onCommit, editable } = options;
+	const { value, format, parse, onChange, onCommit, editable, scrubOptions } =
+		options;
 	const [draft, setDraftState] = useState<string | null>(null);
 	const [focused, setFocused] = useState(false);
 	// Blurring from a key handler runs onBlur before React re-renders, so the
 	// handlers need the current draft and not the one from the last render.
 	const draftRef = useRef<string | null>(null);
+	const keyGesture = useRef<ValueGesture | null>(null);
+	const latestCommit = useLatest(onCommit);
 
 	const setDraft = (text: string | null) => {
 		draftRef.current = text;
@@ -48,11 +60,35 @@ export function useTextEdit(options: TextEditOptions) {
 		return next;
 	};
 
+	const finishKeys = useCallback(() => {
+		const final = keyGesture.current?.finish() ?? null;
+		keyGesture.current = null;
+		if (final !== null) latestCommit.current?.(final);
+	}, [latestCommit]);
+
 	useEffect(() => {
 		if (editable) return;
 		draftRef.current = null;
 		setDraftState(null);
-	}, [editable]);
+		finishKeys();
+	}, [editable, finishKeys]);
+
+	useEffect(() => finishKeys, [finishKeys]);
+
+	/** Moves the value for an arrow key. Returns false for any other key. */
+	const stepFromArrow = (e: KeyboardEvent<HTMLInputElement>): boolean => {
+		if (!editable) return false;
+		const typed = draftRef.current === null ? null : parse(draftRef.current);
+		const mods = { shift: e.shiftKey, alt: e.altKey };
+		const next = stepValue(typed ?? value, e.key, mods, scrubOptions);
+		if (next === null) return false;
+		e.preventDefault();
+		setDraft(null);
+		keyGesture.current ??= createGesture(value);
+		keyGesture.current.update(next);
+		if (next !== value) onChange(next);
+		return true;
+	};
 
 	const inputProps = {
 		value: draft ?? format(value),
@@ -60,13 +96,18 @@ export function useTextEdit(options: TextEditOptions) {
 		onFocus: () => setFocused(true),
 		onBlur: () => {
 			commitDraft();
+			finishKeys();
 			setFocused(false);
 		},
 		onKeyDown: (e: KeyboardEvent<HTMLInputElement>) => {
+			if (stepFromArrow(e)) return;
 			const action = editKeyAction(e.key);
 			if (action === "commit") commitDraft();
 			if (action === "revert") setDraft(null);
 			if (action) e.currentTarget.blur();
+		},
+		onKeyUp: (e: KeyboardEvent<HTMLInputElement>) => {
+			if (stepFromKey(e.key) !== null) finishKeys();
 		},
 	};
 

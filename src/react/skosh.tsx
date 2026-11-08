@@ -82,6 +82,7 @@ export const Skosh = forwardRef<HTMLInputElement, SkoshProps>(function Skosh(
 	const text = format(value);
 	const { input: inputProps, root: rootProps } = splitProps(rest);
 	const interactive = !disabled && !readOnly;
+	const scrubOptions = { min, max, step, precision, perPx };
 
 	// Typed values can land between steps, but never past the limits.
 	const parse = (typed: string) => {
@@ -99,6 +100,7 @@ export const Skosh = forwardRef<HTMLInputElement, SkoshProps>(function Skosh(
 		onChange: onValueChange,
 		onCommit: onValueCommit,
 		editable: interactive,
+		scrubOptions,
 	});
 
 	const labelStyle: CSSProperties = {
