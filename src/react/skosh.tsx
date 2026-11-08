@@ -3,9 +3,12 @@ import {
 	forwardRef,
 	type HTMLAttributes,
 	type ReactNode,
+	useImperativeHandle,
+	useRef,
 } from "react";
 import { clamp, formatValue, parseValue, roundToStep } from "../core";
 import { useResolvedLocale } from "./use-locale";
+import { useScrub } from "./use-scrub";
 import { useTextEdit } from "./use-text-edit";
 
 type RootAttributes = Omit<
@@ -76,6 +79,9 @@ export const Skosh = forwardRef<HTMLInputElement, SkoshProps>(function Skosh(
 	},
 	ref,
 ) {
+	const inputRef = useRef<HTMLInputElement>(null);
+	useImperativeHandle(ref, () => inputRef.current as HTMLInputElement);
+
 	const resolvedLocale = useResolvedLocale(locale);
 	const format = (v: number) =>
 		formatValue(v, { step, precision, locale: resolvedLocale });
@@ -103,6 +109,19 @@ export const Skosh = forwardRef<HTMLInputElement, SkoshProps>(function Skosh(
 		scrubOptions,
 	});
 
+	const scrub = useScrub({
+		value,
+		scrubOptions,
+		onChange: onValueChange,
+		onCommit: onValueCommit,
+		enabled: interactive,
+		commitDraft: edit.commitDraft,
+		onTap: () => {
+			inputRef.current?.focus();
+			inputRef.current?.select();
+		},
+	});
+
 	const labelStyle: CSSProperties = {
 		userSelect: "none",
 		WebkitUserSelect: "none",
@@ -116,8 +135,10 @@ export const Skosh = forwardRef<HTMLInputElement, SkoshProps>(function Skosh(
 			data-disabled={flag(disabled)}
 			data-readonly={flag(readOnly)}
 			data-editing={flag(edit.focused)}
+			data-scrubbing={flag(scrub.scrubbing)}
 		>
-			<span data-skosh-label="" style={labelStyle}>
+			{/* A pointer-only handle. Keyboard users step with the arrow keys in the input. */}
+			<span data-skosh-label="" style={labelStyle} {...scrub.handleProps}>
 				{label}
 			</span>
 			<input
@@ -127,7 +148,7 @@ export const Skosh = forwardRef<HTMLInputElement, SkoshProps>(function Skosh(
 				aria-valuetext={unit ? `${text} ${unit}` : text}
 				{...inputProps}
 				{...edit.inputProps}
-				ref={ref}
+				ref={inputRef}
 				data-skosh-input=""
 				type="text"
 				inputMode="decimal"
