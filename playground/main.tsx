@@ -12,7 +12,8 @@ import {
 	clamp,
 	createScrubSession,
 	editKeyAction,
-	evaluate,
+	formatValue,
+	parseValue,
 	type ScrubOptions,
 	type ScrubSession,
 	stepValue,
@@ -34,12 +35,6 @@ const FIELDS: Record<FieldKey, FieldConfig> = {
 
 const INITIAL: Record<FieldKey, number> = { w: 160, r: 20, rot: 0, op: 100 };
 
-// Whole numbers stay whole and anything else shows one decimal place.
-const format = (v: number) => {
-	const tenth = Math.round(v * 10) / 10;
-	return Number.isInteger(tenth) ? String(Math.round(v)) : tenth.toFixed(1);
-};
-
 interface FieldProps {
 	config: FieldConfig;
 	value: number;
@@ -53,6 +48,7 @@ function ScrubField({ config, value, onChange }: FieldProps) {
 	const [scrubbing, setScrubbing] = useState(false);
 	const [draft, setDraft] = useState<string | null>(null);
 
+	const format = (v: number) => formatValue(v, config);
 	const commit = (n: number) =>
 		onChange(clamp(n, config.min ?? -Infinity, config.max ?? Infinity));
 
@@ -98,7 +94,7 @@ function ScrubField({ config, value, onChange }: FieldProps) {
 
 	const onBlur = () => {
 		if (draft !== null && !reverting.current) {
-			const n = evaluate(draft);
+			const n = parseValue(draft, config);
 			if (n !== null) commit(n);
 		}
 		reverting.current = false;
