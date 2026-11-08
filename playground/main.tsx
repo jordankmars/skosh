@@ -13,7 +13,10 @@ import {
 import { createRoot } from "react-dom/client";
 import {
 	clamp,
+	createDragIntent,
 	createScrubSession,
+	type DragIntent,
+	dragThreshold,
 	editKeyAction,
 	formatValue,
 	type Point,
@@ -73,6 +76,9 @@ interface FieldProps {
 function ScrubField({ config, locale, value, onChange }: FieldProps) {
 	const session = useRef<ScrubSession | null>(null);
 	const handle = useRef<HTMLSpanElement>(null);
+	const input = useRef<HTMLInputElement>(null);
+	const intent = useRef<DragIntent | null>(null);
+	const start = useRef<Point>({ x: 0, y: 0 });
 	const lastX = useRef(0);
 	const cursor = useRef<Point>({ x: 0, y: 0 });
 	const lockRequested = useRef(false);
@@ -88,16 +94,36 @@ function ScrubField({ config, locale, value, onChange }: FieldProps) {
 		handle.current !== null && document.pointerLockElement === handle.current;
 
 	const onPointerDown = (e: PointerEvent<HTMLSpanElement>) => {
+		if (e.button !== 0) return;
 		e.preventDefault();
 		e.currentTarget.setPointerCapture(e.pointerId);
-		session.current = createScrubSession(value, config);
-		lastX.current = e.clientX;
+		intent.current = createDragIntent(dragThreshold(e.pointerType));
+		start.current = { x: e.clientX, y: e.clientY };
 		lockRequested.current = false;
-		setScrubbing(true);
-		document.body.classList.add("scrubbing");
 	};
 
 	const onPointerMove = (e: PointerEvent<HTMLSpanElement>) => {
+		const press = intent.current;
+		if (!press) return;
+		if (press.state === "pending") {
+			const next = press.move(
+				e.clientX - start.current.x,
+				e.clientY - start.current.y,
+			);
+			if (next === "pending") return;
+			// A vertical swipe on touch is the page scrolling, so let it go. The
+			// browser takes over through touch-action: pan-y. A mouse can't
+			// scroll this way, so any direction scrubs.
+			if (next === "scroll" && e.pointerType !== "mouse") {
+				intent.current = null;
+				return;
+			}
+			// Start from the press point so the threshold distance isn't lost.
+			session.current = createScrubSession(value, config);
+			lastX.current = start.current.x;
+			setScrubbing(true);
+			document.body.classList.add("scrubbing");
+		}
 		if (!session.current) return;
 		let dx: number;
 		if (isLocked()) {
@@ -124,7 +150,18 @@ function ScrubField({ config, locale, value, onChange }: FieldProps) {
 		onChange(session.current.move(dx, { shift: e.shiftKey, alt: e.altKey }));
 	};
 
+	const onPointerUp = () => {
+		// A tap on the label goes to the input, which matters most on touch where
+		// the label is the bigger target.
+		if (intent.current?.isTap) {
+			input.current?.focus();
+			input.current?.select();
+		}
+		stop();
+	};
+
 	const stop = useCallback(() => {
+		intent.current = null;
 		session.current = null;
 		setScrubbing(false);
 		document.body.classList.remove("scrubbing");
@@ -192,13 +229,14 @@ function ScrubField({ config, locale, value, onChange }: FieldProps) {
 				className="sf-l"
 				onPointerDown={onPointerDown}
 				onPointerMove={onPointerMove}
-				onPointerUp={stop}
+				onPointerUp={onPointerUp}
 				onPointerCancel={stop}
 				onClick={(e) => e.preventDefault()}
 			>
 				{config.label}
 			</span>
 			<input
+				ref={input}
 				inputMode="decimal"
 				value={draft ?? format(value)}
 				onFocus={() => setDraft(format(value))}
@@ -296,7 +334,7 @@ function App() {
 const CSS = `
 :root {
 	--bg: #f6f6f8; --surface: #ffffff; --stage: #ececf0; --fg: #16161a; --muted: #6a6a75;
-	--line: #e2e2e8; --accent: #2d55e0;
+	--line: #e2e2e8; --accent: #2d55e0; --accent-soft: #dde4fc;
 	--sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 	--mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 	color-scheme: light;
@@ -304,7 +342,7 @@ const CSS = `
 @media (prefers-color-scheme: dark) {
 	:root {
 		--bg: #0e0e11; --surface: #1a1a1f; --stage: #121216; --fg: #ececf1; --muted: #9b9ba8;
-		--line: #2a2a31; --accent: #7390ff; color-scheme: dark;
+		--line: #2a2a31; --accent: #7390ff; --accent-soft: #202a50; color-scheme: dark;
 	}
 }
 * { box-sizing: border-box; }
@@ -328,14 +366,21 @@ input { font: inherit; color: inherit; }
 .shape { width: 160px; aspect-ratio: 1 / 1; max-width: 100%; border-radius: 20px; background: linear-gradient(150deg, var(--accent), #8fb1ff); }
 .panel { background: var(--surface); border-radius: 12px; padding: 8px; display: grid; gap: 4px; }
 .sf { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 4px; border-radius: 7px; padding: 2px 6px 2px 2px; }
-.sf:focus-within { background: var(--stage); }
-.sf-l { font-family: var(--mono); font-size: 11px; color: var(--muted); cursor: ew-resize; touch-action: none; user-select: none; -webkit-user-select: none; padding: 6px 0 6px 8px; border-radius: 6px; }
+.sf:focus-within { background: var(--stage); box-shadow: inset 0 0 0 1px var(--accent); }
+.sf.scrubbing { background: var(--accent-soft); }
+.sf-l { font-family: var(--mono); font-size: 11px; color: var(--muted); cursor: ew-resize; touch-action: pan-y; user-select: none; -webkit-user-select: none; padding: 6px 0 6px 8px; border-radius: 6px; }
 .sf-l:hover, .sf.scrubbing .sf-l { color: var(--accent); }
-.sf input { width: 100%; min-width: 0; border: 0; background: transparent; font-family: var(--mono); font-size: 13px; padding: 5px 2px; outline: none; font-variant-numeric: tabular-nums; }
+.sf input { width: 100%; min-width: 0; border: 0; background: transparent; font-family: var(--mono); font-size: 13px; padding: 5px 2px; outline: none; font-variant-numeric: tabular-nums; caret-color: var(--accent); }
+.sf input::selection { background: var(--accent-soft); }
 .sf i { font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--muted); }
 body.scrubbing, body.scrubbing * { cursor: ew-resize !important; }
 .vcursor { position: fixed; top: -11px; left: -11px; z-index: 10; pointer-events: none; display: none; }
 .vcursor.visible { display: block; }
+/* Bigger targets for fingers, and 16px text so iOS doesn't zoom in on focus. */
+@media (pointer: coarse) {
+	.sf-l { padding-block: 12px; }
+	.sf input { font-size: 16px; }
+}
 @media (max-width: 420px) { .scrub { grid-template-columns: 1fr 150px; gap: 8px; } }
 `;
 
