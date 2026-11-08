@@ -182,7 +182,7 @@ function ScrubField({ config, locale, value, onChange }: FieldProps) {
 				return;
 			}
 			if (locked) placeCursor(cursor.current);
-			showCursor(locked);
+			showCursor(document.pointerLockElement !== null);
 			// Losing the lock mid-drag (Escape, switching tabs) ends the drag, since
 			// the real cursor reappears somewhere else.
 			if (!locked && session.current && lockRequested.current) stop();
