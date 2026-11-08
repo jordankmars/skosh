@@ -113,7 +113,7 @@ function install(): { browser: FakeBrowser; restore: () => void } {
 }
 
 /** Sets up the fake browser around each test in the file and hands back the current one. */
-export function useFakeBrowser(): () => FakeBrowser {
+export function setupFakeBrowser(): () => FakeBrowser {
 	let current: ReturnType<typeof install> | null = null;
 	beforeEach(() => {
 		current = install();
