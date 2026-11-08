@@ -142,6 +142,20 @@ describe("focus without typing", () => {
 	});
 });
 
+describe("becoming disabled while focused", () => {
+	it("stops marking the field as editing", () => {
+		const { container, rerender } = render(
+			<Skosh label="W" value={10} onValueChange={() => {}} />,
+		);
+		const input = screen.getByRole<HTMLInputElement>("spinbutton");
+		act(() => input.focus());
+		const root = container.querySelector("[data-skosh-root]");
+		expect(root?.hasAttribute("data-editing")).toBe(true);
+		rerender(<Skosh label="W" value={10} onValueChange={() => {}} disabled />);
+		expect(root?.hasAttribute("data-editing")).toBe(false);
+	});
+});
+
 describe("becoming read-only while typing", () => {
 	it("drops the text without committing", () => {
 		const onValueChange = vi.fn();

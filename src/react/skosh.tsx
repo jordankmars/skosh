@@ -137,7 +137,7 @@ export const Skosh = forwardRef<HTMLInputElement, SkoshProps>(function Skosh(
 				data-skosh-root=""
 				data-disabled={flag(disabled)}
 				data-readonly={flag(readOnly)}
-				data-editing={flag(edit.focused)}
+				data-editing={flag(edit.focused && !disabled)}
 				data-scrubbing={flag(scrub.scrubbing)}
 			>
 				{/* A pointer-only handle. Keyboard users step with the arrow keys in the input. */}
