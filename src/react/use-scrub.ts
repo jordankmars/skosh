@@ -16,6 +16,7 @@ import {
 	type ScrubSession,
 } from "../core";
 import { createGesture, type ValueGesture } from "./gesture";
+import { createPointerLock, type PointerLock } from "./pointer-lock";
 import { useLatest } from "./use-latest";
 
 export interface ScrubOptionsForHook {
@@ -24,6 +25,7 @@ export interface ScrubOptionsForHook {
 	onChange: (value: number) => void;
 	onCommit?: (value: number) => void;
 	enabled: boolean;
+	pointerLock: boolean;
 	/** Applies any typed text first, and returns the new value if that changed it. */
 	commitDraft: () => number | null;
 	/** Called for a tap on the label. */
@@ -37,6 +39,7 @@ interface Press {
 	intent: DragIntent;
 	start: Point;
 	lastX: number;
+	lockRequested: boolean;
 	drag: { session: ScrubSession; gesture: ValueGesture } | null;
 }
 
@@ -46,6 +49,7 @@ export function useScrub(options: ScrubOptionsForHook) {
 	const pressRef = useRef<Press | null>(null);
 	const [scrubbing, setScrubbing] = useState(false);
 	const latest = useLatest(options);
+	const lockRef = useRef<PointerLock | null>(null);
 
 	// Safe to call twice: whatever fires second finds nothing left to end.
 	const end = useCallback(() => {
@@ -53,9 +57,17 @@ export function useScrub(options: ScrubOptionsForHook) {
 		if (!press) return;
 		pressRef.current = null;
 		setScrubbing(false);
+		lockRef.current?.release();
 		const final = press.drag?.gesture.finish() ?? null;
 		if (final !== null) latest.current.onCommit?.(final);
 	}, [latest]);
+
+	// Created once, and only needs the stable `end`.
+	lockRef.current ??= createPointerLock({
+		onHeld: () => {},
+		onLost: end,
+	});
+	const lock = lockRef.current;
 
 	useEffect(() => {
 		if (!enabled) end();
@@ -89,6 +101,7 @@ export function useScrub(options: ScrubOptionsForHook) {
 				intent: createDragIntent(dragThreshold(e.pointerType)),
 				start: { x: e.clientX, y: e.clientY },
 				lastX: e.clientX,
+				lockRequested: false,
 				drag: null,
 			};
 		},
@@ -111,8 +124,27 @@ export function useScrub(options: ScrubOptionsForHook) {
 			}
 			const drag = press.drag;
 			if (!drag) return;
-			const dx = e.clientX - press.lastX;
-			press.lastX = e.clientX;
+			let dx: number;
+			if (lock.held) {
+				// clientX stops changing under lock, so read the raw movement instead.
+				// Chrome sometimes reports one huge jump right after locking; skip it.
+				const view = press.el.ownerDocument.defaultView;
+				if (view && Math.abs(e.movementX) > view.innerWidth / 2) return;
+				dx = e.movementX;
+			} else {
+				dx = e.clientX - press.lastX;
+				press.lastX = e.clientX;
+				// Lock once the drag actually moves, so a plain click never hides the cursor.
+				if (
+					options.pointerLock &&
+					!press.lockRequested &&
+					dx !== 0 &&
+					e.pointerType === "mouse"
+				) {
+					press.lockRequested = true;
+					lock.request(press.el);
+				}
+			}
 			// Moving straight up or down shouldn't round a value nobody asked to change.
 			if (dx === 0) return;
 			const next = drag.session.move(dx, {
@@ -131,7 +163,8 @@ export function useScrub(options: ScrubOptionsForHook) {
 			if (isCurrent(e)) end();
 		},
 		onLostPointerCapture: (e: PointerEvent<HTMLElement>) => {
-			if (isCurrent(e)) end();
+			// Chrome drops capture when the lock takes over, and that's not an ending.
+			if (isCurrent(e) && lock.idle) end();
 		},
 		// The tap handling above does the focusing, so stop the <label> doing it too.
 		onClick: (e: MouseEvent<HTMLElement>) => {

@@ -115,6 +115,7 @@ export const Skosh = forwardRef<HTMLInputElement, SkoshProps>(function Skosh(
 		onChange: onValueChange,
 		onCommit: onValueCommit,
 		enabled: interactive,
+		pointerLock,
 		commitDraft: edit.commitDraft,
 		onTap: () => {
 			inputRef.current?.focus();
