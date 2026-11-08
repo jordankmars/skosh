@@ -16,8 +16,8 @@ export interface ParseOptions {
 }
 
 // Directional marks some locales add around numbers, plus the Unicode minus sign.
-const BIDI_MARKS = /[‎‏؜]/g;
-const UNICODE_MINUS = /−/g;
+const BIDI_MARKS = /[\u200e\u200f\u061c]/g;
+const UNICODE_MINUS = /\u2212/g;
 
 const formatters = new Map<string, Intl.NumberFormat>();
 
@@ -87,7 +87,7 @@ function normalize(text: string, locale?: string): string {
 	let out = text
 		.replace(BIDI_MARKS, "")
 		.replace(UNICODE_MINUS, "-")
-		.replace(/٫/g, ".");
+		.replace(/\u066b/g, ".");
 	if (decimal === ",") {
 		if (group !== ".") out = out.split(group).join("");
 		return out.replace(/,/g, ".");
