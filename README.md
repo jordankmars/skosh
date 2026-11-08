@@ -23,13 +23,60 @@ function Inspector() {
 
 ## Status
 
-The framework-free core is in place. The React component above is next, so nothing is published yet.
+The core and the React component are built, but nothing is published yet.
+
+## Props
+
+| Prop            | Type                      | Notes                                                                |
+| --------------- | ------------------------- | -------------------------------------------------------------------- |
+| `label`         | `ReactNode`               | The drag handle. If it's an icon, also pass `aria-label`.            |
+| `value`         | `number`                  | Required. The field is always controlled.                            |
+| `onValueChange` | `(value: number) => void` | Required. Called for every change, including each step of a drag.    |
+| `onValueCommit` | `(value: number) => void` | Called once when a change is finished. Use this for undo history.    |
+| `min`, `max`    | `number`                  | Limits for drags, arrow keys and typed values.                       |
+| `step`          | `number`                  | Smallest change a drag or arrow key snaps to. Defaults to 1.         |
+| `perPx`         | `number`                  | How much the value changes per pixel dragged. Defaults to `step`.    |
+| `precision`     | `number`                  | Most decimal places the value can have.                              |
+| `unit`          | `string`                  | Shown after the value, and allowed after a typed number.             |
+| `locale`        | `string`                  | BCP 47 locale for the decimal separator. Defaults to the browser's.  |
+| `disabled`      | `boolean`                 | Blocks everything.                                                   |
+| `readOnly`      | `boolean`                 | Allows focus and selecting the text, but no changes.                 |
+| `pointerLock`   | `boolean`                 | Set to `false` to stop drags at the window edge. Defaults to `true`. |
+
+The ref, ARIA props, `id` and `name` go to the input. Everything else, like `className`, goes to the root.
+
+## Styling
+
+The component ships no CSS. It only sets the inline styles dragging needs, so the look is up to you. Each part has a data attribute to target:
+
+```css
+[data-skosh-root] {
+}
+[data-skosh-label] {
+}
+[data-skosh-input] {
+}
+[data-skosh-unit] {
+}
+
+/* States, set on the root */
+[data-skosh-root][data-scrubbing] {
+}
+[data-skosh-root][data-editing] {
+}
+[data-skosh-root][data-disabled] {
+}
+[data-skosh-root][data-readonly] {
+}
+```
+
+During a mouse drag, a full-window overlay and the drawn cursor are added to the page. They're marked `[data-skosh-cursor="overlay"]` and `[data-skosh-cursor="virtual"]`.
 
 ## Adapters
 
 | Framework | Import path    | Status      |
 | --------- | -------------- | ----------- |
-| React     | `skosh/react`  | In progress |
+| React     | `skosh/react`  | Unreleased  |
 | Vue       | `skosh/vue`    | Coming soon |
 | Svelte    | `skosh/svelte` | Coming soon |
 
@@ -37,13 +84,13 @@ The framework-free core is in place. The React component above is next, so nothi
 
 ```sh
 pnpm install
-pnpm playground   # one-page React app that wires the core up by hand
-pnpm test         # unit tests for the core
+pnpm playground   # a small inspector built from the React component
+pnpm test
 pnpm lint
 pnpm typecheck
 ```
 
-The core lives in `src/core` and has no DOM code in it. It takes pointer deltas, key presses and typed text, and gives back values. Each adapter owns the event wiring. The playground in `playground/main.tsx` does the same wiring by hand, so you can try changes to the core without going through a component.
+The core lives in `src/core` and has no DOM code in it. It takes pointer deltas, key presses and typed text, and gives back values. Each adapter owns the event wiring, and `src/react` is the first one. The playground in `playground/main.tsx` imports the component straight from the source.
 
 ## Contributing
 
