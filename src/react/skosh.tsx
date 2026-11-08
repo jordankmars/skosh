@@ -4,8 +4,9 @@ import {
 	type HTMLAttributes,
 	type ReactNode,
 } from "react";
-import { formatValue } from "../core";
+import { clamp, formatValue, parseValue, roundToStep } from "../core";
 import { useResolvedLocale } from "./use-locale";
+import { useTextEdit } from "./use-text-edit";
 
 type RootAttributes = Omit<
 	HTMLAttributes<HTMLLabelElement>,
@@ -76,9 +77,29 @@ export const Skosh = forwardRef<HTMLInputElement, SkoshProps>(function Skosh(
 	ref,
 ) {
 	const resolvedLocale = useResolvedLocale(locale);
-	const text = formatValue(value, { step, precision, locale: resolvedLocale });
+	const format = (v: number) =>
+		formatValue(v, { step, precision, locale: resolvedLocale });
+	const text = format(value);
 	const { input: inputProps, root: rootProps } = splitProps(rest);
 	const interactive = !disabled && !readOnly;
+
+	// Typed values can land between steps, but never past the limits.
+	const parse = (typed: string) => {
+		const n = parseValue(typed, { unit, locale: resolvedLocale });
+		if (n === null) return null;
+		const rounded =
+			precision === undefined ? n : roundToStep(n, 10 ** -precision);
+		return clamp(rounded, min ?? -Infinity, max ?? Infinity);
+	};
+
+	const edit = useTextEdit({
+		value,
+		format,
+		parse,
+		onChange: onValueChange,
+		onCommit: onValueCommit,
+		editable: interactive,
+	});
 
 	const labelStyle: CSSProperties = {
 		userSelect: "none",
@@ -92,6 +113,7 @@ export const Skosh = forwardRef<HTMLInputElement, SkoshProps>(function Skosh(
 			data-skosh-root=""
 			data-disabled={flag(disabled)}
 			data-readonly={flag(readOnly)}
+			data-editing={flag(edit.focused)}
 		>
 			<span data-skosh-label="" style={labelStyle}>
 				{label}
@@ -102,6 +124,7 @@ export const Skosh = forwardRef<HTMLInputElement, SkoshProps>(function Skosh(
 				aria-valuenow={value}
 				aria-valuetext={unit ? `${text} ${unit}` : text}
 				{...inputProps}
+				{...edit.inputProps}
 				ref={ref}
 				data-skosh-input=""
 				type="text"
@@ -110,8 +133,6 @@ export const Skosh = forwardRef<HTMLInputElement, SkoshProps>(function Skosh(
 				autoComplete="off"
 				disabled={disabled}
 				readOnly={readOnly}
-				value={text}
-				onChange={() => {}}
 			/>
 			{unit ? (
 				<span data-skosh-unit="" aria-hidden="true">

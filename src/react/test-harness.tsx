@@ -1,7 +1,9 @@
 // Test helpers. jsdom has no pointer lock or pointer capture, and it needs help
 // with the pointer fields we read, so these stand in for the browser.
 import { act, cleanup } from "@testing-library/react";
+import { useState } from "react";
 import { afterEach, beforeEach } from "vitest";
+import { Skosh, type SkoshProps } from "./skosh";
 
 export interface FakeBrowser {
 	/** Elements still waiting on a lock answer, oldest first. */
@@ -156,4 +158,26 @@ export function firePointer(
 		el.dispatchEvent(event);
 	});
 	return event;
+}
+
+export type ControlledProps = Partial<SkoshProps> & { initial?: number };
+
+/** A field that holds its own value, the way a host app would. */
+export function Controlled({
+	initial = 10,
+	onValueChange,
+	...props
+}: ControlledProps) {
+	const [value, setValue] = useState(initial);
+	return (
+		<Skosh
+			label="W"
+			value={value}
+			onValueChange={(next) => {
+				setValue(next);
+				onValueChange?.(next);
+			}}
+			{...props}
+		/>
+	);
 }
