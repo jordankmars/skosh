@@ -12,6 +12,7 @@ import {
 	clamp,
 	createScrubSession,
 	editKeyAction,
+	evaluate,
 	type ScrubOptions,
 	type ScrubSession,
 	stepValue,
@@ -97,8 +98,8 @@ function ScrubField({ config, value, onChange }: FieldProps) {
 
 	const onBlur = () => {
 		if (draft !== null && !reverting.current) {
-			const n = Number.parseFloat(draft);
-			if (!Number.isNaN(n)) commit(n);
+			const n = evaluate(draft);
+			if (n !== null) commit(n);
 		}
 		reverting.current = false;
 		setDraft(null);
@@ -144,7 +145,7 @@ function App() {
 				<h1>skosh playground</h1>
 				<p>
 					Drag a field's label left or right to change it. Hold Shift for ×10
-					and Alt for fine steps, or type a value.
+					and Alt for fine steps, or type a value or a bit of math like 120*2.
 				</p>
 			</header>
 			<section className="stage">
