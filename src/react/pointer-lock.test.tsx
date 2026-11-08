@@ -164,3 +164,59 @@ describe("timing", () => {
 		expect(field.onValueCommit).not.toHaveBeenCalled();
 	});
 });
+
+describe("the cursor during a drag", () => {
+	const overlay = () =>
+		document.querySelector<HTMLElement>('[data-skosh-cursor="overlay"]');
+	const drawn = () =>
+		document.querySelector<HTMLElement>('[data-skosh-cursor="virtual"]');
+
+	it("covers the page with the resize cursor for a mouse drag", () => {
+		const field = setup({ pointerLock: false });
+		expect(overlay()).toBeNull();
+		drag(field);
+		expect(overlay()?.style.cursor).toBe("ew-resize");
+		firePointer(field.handle, "pointerup");
+		expect(overlay()).toBeNull();
+	});
+
+	it("doesn't cover the page for a touch drag", () => {
+		const field = setup();
+		const touch = { pointerType: "touch" };
+		firePointer(field.handle, "pointerdown", { ...touch, clientX: 100 });
+		firePointer(field.handle, "pointermove", { ...touch, clientX: 120 });
+		expect(overlay()).toBeNull();
+	});
+
+	it("draws a cursor where the pointer was once locked", () => {
+		const field = setup();
+		drag(field);
+		expect(drawn()).toBeNull();
+		browser().grantLock();
+		expect(drawn()?.style.transform).toBe("translate(110px)");
+		firePointer(field.handle, "pointerup");
+		expect(drawn()).toBeNull();
+	});
+
+	it("wraps the drawn cursor around the window", () => {
+		const field = lockedDrag();
+		firePointer(field.handle, "pointermove", { movementX: -200 });
+		expect(drawn()?.style.transform).toBe(
+			`translate(${window.innerWidth - 90}px)`,
+		);
+	});
+
+	it("doesn't draw one for another element's lock", () => {
+		const field = setup();
+		drag(field);
+		browser().forceLock(document.createElement("canvas"));
+		expect(drawn()).toBeNull();
+	});
+
+	it("removes everything if the field unmounts mid-drag", () => {
+		const field = lockedDrag();
+		field.unmount();
+		expect(overlay()).toBeNull();
+		expect(drawn()).toBeNull();
+	});
+});

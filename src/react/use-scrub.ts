@@ -14,6 +14,7 @@ import {
 	type Point,
 	type ScrubOptions,
 	type ScrubSession,
+	wrapCursor,
 } from "../core";
 import { createGesture, type ValueGesture } from "./gesture";
 import { createPointerLock, type PointerLock } from "./pointer-lock";
@@ -50,6 +51,24 @@ export function useScrub(options: ScrubOptionsForHook) {
 	const [scrubbing, setScrubbing] = useState(false);
 	const latest = useLatest(options);
 	const lockRef = useRef<PointerLock | null>(null);
+	const [locked, setLocked] = useState(false);
+	const [cursorTarget, setCursorTarget] = useState<HTMLElement | null>(null);
+	const cursorPosition = useRef<Point>({ x: 0, y: 0 });
+	const cursorEl = useRef<HTMLDivElement | null>(null);
+
+	const placeCursor = useCallback((el: HTMLDivElement | null) => {
+		const { x, y } = cursorPosition.current;
+		if (el) el.style.transform = `translate(${x}px, ${y}px)`;
+	}, []);
+
+	// The drawn cursor mounts a little after the lock arrives, and moves can land first.
+	const cursorRef = useCallback(
+		(el: HTMLDivElement | null) => {
+			cursorEl.current = el;
+			placeCursor(el);
+		},
+		[placeCursor],
+	);
 
 	// Safe to call twice: whatever fires second finds nothing left to end.
 	const end = useCallback(() => {
@@ -57,6 +76,8 @@ export function useScrub(options: ScrubOptionsForHook) {
 		if (!press) return;
 		pressRef.current = null;
 		setScrubbing(false);
+		setLocked(false);
+		setCursorTarget(null);
 		lockRef.current?.release();
 		const final = press.drag?.gesture.finish() ?? null;
 		if (final !== null) latest.current.onCommit?.(final);
@@ -64,7 +85,7 @@ export function useScrub(options: ScrubOptionsForHook) {
 
 	// Created once, and only needs the stable `end`.
 	lockRef.current ??= createPointerLock({
-		onHeld: () => {},
+		onHeld: () => setLocked(true),
 		onLost: end,
 	});
 	const lock = lockRef.current;
@@ -84,6 +105,9 @@ export function useScrub(options: ScrubOptionsForHook) {
 			gesture: createGesture(start),
 		};
 		setScrubbing(true);
+		if (press.pointerType === "mouse") {
+			setCursorTarget(press.el.ownerDocument.body);
+		}
 	};
 
 	const isCurrent = (e: PointerEvent) =>
@@ -131,9 +155,18 @@ export function useScrub(options: ScrubOptionsForHook) {
 				const view = press.el.ownerDocument.defaultView;
 				if (view && Math.abs(e.movementX) > view.innerWidth / 2) return;
 				dx = e.movementX;
+				if (view) {
+					cursorPosition.current = wrapCursor(
+						cursorPosition.current,
+						{ x: e.movementX, y: e.movementY },
+						{ width: view.innerWidth, height: view.innerHeight },
+					);
+				}
+				placeCursor(cursorEl.current);
 			} else {
 				dx = e.clientX - press.lastX;
 				press.lastX = e.clientX;
+				cursorPosition.current = { x: e.clientX, y: e.clientY };
 				// Lock once the drag actually moves, so a plain click never hides the cursor.
 				if (
 					options.pointerLock &&
@@ -172,5 +205,5 @@ export function useScrub(options: ScrubOptionsForHook) {
 		},
 	};
 
-	return { handleProps, scrubbing };
+	return { handleProps, scrubbing, locked, cursorTarget, cursorRef };
 }

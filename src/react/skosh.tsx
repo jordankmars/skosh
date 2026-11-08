@@ -7,6 +7,7 @@ import {
 	useRef,
 } from "react";
 import { clamp, formatValue, parseValue, roundToStep } from "../core";
+import { ScrubCursor } from "./scrub-cursor";
 import { useResolvedLocale } from "./use-locale";
 import { useScrub } from "./use-scrub";
 import { useTextEdit } from "./use-text-edit";
@@ -130,39 +131,48 @@ export const Skosh = forwardRef<HTMLInputElement, SkoshProps>(function Skosh(
 	};
 
 	return (
-		<label
-			{...rootProps}
-			data-skosh-root=""
-			data-disabled={flag(disabled)}
-			data-readonly={flag(readOnly)}
-			data-editing={flag(edit.focused)}
-			data-scrubbing={flag(scrub.scrubbing)}
-		>
-			{/* A pointer-only handle. Keyboard users step with the arrow keys in the input. */}
-			<span data-skosh-label="" style={labelStyle} {...scrub.handleProps}>
-				{label}
-			</span>
-			<input
-				aria-valuemin={min}
-				aria-valuemax={max}
-				aria-valuenow={value}
-				aria-valuetext={unit ? `${text} ${unit}` : text}
-				{...inputProps}
-				{...edit.inputProps}
-				ref={inputRef}
-				data-skosh-input=""
-				type="text"
-				inputMode="decimal"
-				role="spinbutton"
-				autoComplete="off"
-				disabled={disabled}
-				readOnly={readOnly}
-			/>
-			{unit ? (
-				<span data-skosh-unit="" aria-hidden="true">
-					{unit}
+		<>
+			<label
+				{...rootProps}
+				data-skosh-root=""
+				data-disabled={flag(disabled)}
+				data-readonly={flag(readOnly)}
+				data-editing={flag(edit.focused)}
+				data-scrubbing={flag(scrub.scrubbing)}
+			>
+				{/* A pointer-only handle. Keyboard users step with the arrow keys in the input. */}
+				<span data-skosh-label="" style={labelStyle} {...scrub.handleProps}>
+					{label}
 				</span>
+				<input
+					aria-valuemin={min}
+					aria-valuemax={max}
+					aria-valuenow={value}
+					aria-valuetext={unit ? `${text} ${unit}` : text}
+					{...inputProps}
+					{...edit.inputProps}
+					ref={inputRef}
+					data-skosh-input=""
+					type="text"
+					inputMode="decimal"
+					role="spinbutton"
+					autoComplete="off"
+					disabled={disabled}
+					readOnly={readOnly}
+				/>
+				{unit ? (
+					<span data-skosh-unit="" aria-hidden="true">
+						{unit}
+					</span>
+				) : null}
+			</label>
+			{scrub.cursorTarget ? (
+				<ScrubCursor
+					target={scrub.cursorTarget}
+					locked={scrub.locked}
+					cursorRef={scrub.cursorRef}
+				/>
 			) : null}
-		</label>
+		</>
 	);
 });
