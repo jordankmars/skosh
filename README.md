@@ -88,6 +88,7 @@ pnpm playground   # a small inspector built from the React component
 pnpm test
 pnpm lint
 pnpm typecheck
+pnpm site:dev     # the docs site, builds the library first
 ```
 
 The core lives in `src/core` and has no DOM code in it. It takes pointer deltas, key presses and typed text, and gives back values. Each adapter owns the event wiring, and `src/react` is the first one. The playground in `playground/main.tsx` imports the component straight from the source.

@@ -1,0 +1,19 @@
+export const metadata = { title: "Hello World" };
+
+# Hello World
+
+Welcome to the skosh docs. skosh is a number field you change by dragging its label, like the inspector in a design tool. Drag to scrub, type a value or a bit of math, or step it with the arrow keys.
+
+There's more to come. For now, here's the smallest one you can make:
+
+```tsx
+import { Skosh } from "skosh/react";
+import { useState } from "react";
+
+function Inspector() {
+	const [width, setWidth] = useState(160);
+	return (
+		<Skosh label="W" value={width} onValueChange={setWidth} min={0} unit="px" />
+	);
+}
+```
