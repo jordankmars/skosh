@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BookIcon, GitHubIcon } from "@/components/icons";
+import { SizeFields } from "@/components/size-fields";
 import { AUTHOR_URL, external, GITHUB_URL } from "@/lib/links";
 
 const button =
@@ -45,6 +46,9 @@ export default function Home() {
 						<GitHubIcon className="size-[15px]" />
 						GitHub
 					</a>
+				</div>
+				<div className="mt-10">
+					<SizeFields />
 				</div>
 			</div>
 		</main>
