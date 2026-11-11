@@ -1,0 +1,96 @@
+export const metadata = { title: "API" };
+
+# API
+
+<Lead>The Skosh component and the props it takes.</Lead>
+
+## Anatomy
+
+Import `Skosh` and give it a label, a value and a change handler.
+
+```tsx
+import { Skosh } from "skosh/react";
+
+<Skosh label="W" value={width} onValueChange={setWidth} />;
+```
+
+It renders a `label` holding the drag handle, the input and the unit.
+
+```html
+<label data-skosh-root>
+	<span data-skosh-label>W</span>
+	<input data-skosh-input />
+	<span data-skosh-unit>px</span>
+</label>
+```
+
+## Props
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `label` | `ReactNode` | Required |
+| `value` | `number` | Required |
+| `onValueChange` | `(value: number) => void` | Required |
+| `onValueCommit` | `(value: number) => void` | - |
+| `min` | `number` | - |
+| `max` | `number` | - |
+| `step` | `number` | `1` |
+| `perPx` | `number` | `step` |
+| `precision` | `number` | - |
+| `unit` | `string` | - |
+| `locale` | `string` | The browser's |
+| `disabled` | `boolean` | `false` |
+| `readOnly` | `boolean` | `false` |
+| `pointerLock` | `boolean` | `true` |
+
+### label
+
+The drag handle. If it's an icon, also pass `aria-label`.
+
+### onValueChange
+
+Called for every change, including each step of a drag.
+
+### onValueCommit
+
+Called once when a change is finished: at the end of a drag, when typed text is applied, or when the arrow keys are released. It doesn't fire if the value ended up where it started. Use it for undo history.
+
+### step
+
+The smallest change a drag or arrow key snaps to. Typed values can land between steps.
+
+### perPx
+
+How much the value changes per pixel dragged. See [Scrubbing](/docs/scrubbing).
+
+### precision
+
+The most decimal places the value can have. Without it, the field shows one more decimal than `step` has, so fine steps still show.
+
+### unit
+
+Shown after the value, and allowed after a typed number.
+
+### readOnly
+
+Allows focus and selecting the text, but no changes. `disabled` blocks everything.
+
+## Other props
+
+The ref, ARIA props, `id` and `name` go to the input. Everything else, like `className`, goes to the root.
+
+```tsx
+const input = useRef<HTMLInputElement>(null);
+
+<Skosh ref={input} id="width" className="field" {...props} />;
+```
+
+## Accessibility
+
+The input is a `spinbutton` with its range and current value set, and the unit is read along with the value. The drag handle is for pointers only, as keyboard users step with the arrow keys.
+
+## Good to know
+
+- `min` and `max` apply to drags, arrow keys and typed values.
+- Rendered on the server, the value is formatted as `en-US` until the browser's locale takes over. Pass `locale` to keep it fixed.
+- During a mouse drag, a full-window overlay and a drawn cursor are added to the page. They're marked `[data-skosh-cursor="overlay"]` and `[data-skosh-cursor="virtual"]`.

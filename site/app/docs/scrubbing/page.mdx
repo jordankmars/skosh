@@ -1,0 +1,53 @@
+import { PerPxExample } from "@/components/per-px-example";
+
+export const metadata = { title: "Scrubbing" };
+
+# Scrubbing
+
+<Lead>Change a value by dragging its label.</Lead>
+
+Pick a `perPx` below and drag the X.
+
+<PerPxExample />
+
+## How it works
+
+Each pixel you drag adds `perPx` to a running total, and the value shown snaps to `step`. Both default to 1, so one pixel is one unit.
+
+```tsx
+<Skosh label="Hz" step={1} perPx={10} value={hz} onValueChange={setHz} />
+```
+
+Raise `perPx` for wide ranges, and lower it for a value that needs a steady hand.
+
+## Modifiers
+
+Hold a key while you drag to change the speed. The same keys work with the arrow keys.
+
+| Key | Speed | Snaps to |
+| --- | --- | --- |
+| None | ×1 | `step` |
+| `Shift` | ×10 | `step` |
+| `Alt` | ×0.1 | A tenth of `step` |
+
+If both are held, `Shift` wins. Fine steps never go past `precision`. Press or release a key halfway through a drag and the speed changes from that point on, without the value jumping.
+
+## Past the edge
+
+With a mouse, the drag asks the browser for pointer lock once it starts moving. The cursor wraps around the window and you can keep going for as long as you like. Pressing Escape gives up the lock and ends the drag.
+
+If the browser refuses the lock, the drag carries on and stops at the window edge. Pass `pointerLock={false}` to always work that way.
+
+```tsx
+<Skosh label="X" pointerLock={false} value={x} onValueChange={setX} />
+```
+
+## Touch
+
+A tap focuses the field and selects its text. A horizontal drag scrubs and a vertical swipe still scrolls the page. Fingers get 8px of movement before a press counts as a drag, where a mouse gets 2px.
+
+## Good to know
+
+- A click on the label that doesn't move focuses the field, the same as a tap.
+- Text that's been typed but not applied is applied when a drag starts, and the drag carries on from there.
+- A mouse scrubs in any direction, but only horizontal movement changes the value.

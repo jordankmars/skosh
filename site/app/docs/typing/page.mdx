@@ -1,0 +1,53 @@
+import { LocaleExample } from "@/components/locale-example";
+
+export const metadata = { title: "Typing" };
+
+# Typing
+
+<Lead>Type a value, a unit or a bit of math.</Lead>
+
+Pick a `locale` below, then click into the field and type.
+
+<LocaleExample />
+
+## Math
+
+The field works out `+`, `-`, `*`, `/` and parentheses when you press Enter or leave it. Type `120*2` and it becomes 240.
+
+It's a small parser rather than `eval`, so typed text can never run code. Anything it can't read, including dividing by zero, puts the last value back.
+
+## Units
+
+Set `unit` and it's shown after the value. It's also allowed in what's typed, so `120px` and `10px*2` both work.
+
+```tsx
+<Skosh label="W" unit="px" value={width} onValueChange={setWidth} />
+```
+
+## Locales
+
+`locale` sets the decimal separator, and defaults to the browser's. Values are shown without thousands separators, since the text is meant to be edited.
+
+Where the decimal separator is a comma, both `,` and `.` count as decimal points. Someone typing `12.5` into a German field almost always means twelve and a half.
+
+## Keys
+
+| Key | Action |
+| --- | --- |
+| `↑` `↓` | Step by `step` |
+| `Shift` + `↑` `↓` | Step by ten times `step` |
+| `Alt` + `↑` `↓` | Step by a tenth of `step` |
+| `Enter` | Apply what's typed and leave the field |
+| `Escape` | Throw away what's typed and leave the field |
+
+Arrow keys step from what you've typed, if it can be read.
+
+## Limits
+
+Typed values are held to `min` and `max`, and rounded to `precision` if it's set. They don't snap to `step`, so 12.34 is a fine answer in a field that drags by 1.
+
+## Good to know
+
+- Tabbing through a field never rewrites its value.
+- A value changed from outside still shows while the field has focus, until someone starts typing.
+- On iOS, keep the input's text at 16px or larger, or the page zooms in on focus.
