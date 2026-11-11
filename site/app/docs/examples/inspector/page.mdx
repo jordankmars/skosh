@@ -1,0 +1,33 @@
+import { Example } from "@/components/example";
+
+export const metadata = { title: "Inspector" };
+
+# Inspector
+
+<Lead>Panels of fields that drive something on screen.</Lead>
+
+Drag any label, or click into a value and type.
+
+## Transform panel
+
+Position, size, rotation and radius on one shape. Leave out `min` and `max` for values that can go anywhere, and set them for the ones that can't.
+
+<Example name="transform-panel" />
+
+## Typography
+
+Small decimals need a small `perPx`. `precision` keeps line height and letter spacing to two places.
+
+<Example name="typography" />
+
+## Audio mixer
+
+A wide range and a narrow one side by side. Frequency moves 10 Hz per pixel, gain runs below zero, and Q moves slowly.
+
+<Example name="audio-mixer" />
+
+## Undo history
+
+`onValueChange` fires for every step of a drag, and `onValueCommit` fires once at the end. Add to the history on commit, and a whole drag is one undo.
+
+<Example name="undo-history" />
