@@ -1,0 +1,68 @@
+import { Example } from "@/components/example";
+
+export const metadata = { title: "Styling" };
+
+# Styling
+
+<Lead>The same field, in any look.</Lead>
+
+skosh ships no CSS. `className` goes on the root, and each part inside it has a data attribute to target. Here's one pair of fields in five styles.
+
+## Site
+
+The look of this site. A muted letter you drag, then the value.
+
+<Example name="style-site" />
+
+## Glass
+
+A translucent fill with `backdrop-blur`. It needs something colorful behind it.
+
+<Example name="style-glass" />
+
+## Neobrutalist
+
+Thick borders and a hard offset shadow. The shadow grows while you drag.
+
+<Example name="style-brutalist" />
+
+## Terminal
+
+Monospace and sharp corners. `label` takes any node, so it can be a bit of text like `$w`.
+
+<Example name="style-terminal" />
+
+## Soft
+
+Large radii and a wide, diffuse shadow that deepens while you drag.
+
+<Example name="style-soft" />
+
+## Parts
+
+| Part | Selector |
+| --- | --- |
+| Root | `[data-skosh-root]` |
+| Drag handle | `[data-skosh-label]` |
+| Input | `[data-skosh-input]` |
+| Unit | `[data-skosh-unit]` |
+
+With Tailwind, the parts are direct children of the root, so `*:` reaches them.
+
+```tsx
+<Skosh className="*:data-skosh-label:w-7 *:data-skosh-input:font-mono" />
+```
+
+## Style by state
+
+The root has a `data-scrubbing`, `data-editing`, `data-disabled` or `data-readonly` attribute while each is true.
+
+```tsx
+<Skosh className="data-scrubbing:bg-neutral-200 data-disabled:opacity-50" />
+```
+
+## Good to know
+
+- Skosh only sets inline styles for what dragging needs: no text selection and a resize cursor on the label.
+- The root is a `label`, which is inline by default. Give it a `display` like `flex` or `grid`.
+- On touch screens, keep the input's text at 16px or larger so iOS doesn't zoom in on focus.

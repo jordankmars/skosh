@@ -3,9 +3,19 @@ import { join } from "node:path";
 import { highlight } from "@/lib/highlight";
 import { ExampleTabs } from "./example-tabs";
 import { Size } from "./examples/size";
+import { StyleBrutalist } from "./examples/style-brutalist";
+import { StyleGlass } from "./examples/style-glass";
+import { StyleSite } from "./examples/style-site";
+import { StyleSoft } from "./examples/style-soft";
+import { StyleTerminal } from "./examples/style-terminal";
 
 const DEMOS = {
 	size: Size,
+	"style-site": StyleSite,
+	"style-glass": StyleGlass,
+	"style-brutalist": StyleBrutalist,
+	"style-terminal": StyleTerminal,
+	"style-soft": StyleSoft,
 };
 
 /** Runs `components/examples/<name>.tsx` and shows that same file as its code. */
