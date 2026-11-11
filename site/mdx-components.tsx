@@ -1,6 +1,7 @@
 import type { MDXComponents } from "mdx/types";
 import type { ComponentProps, ReactElement, ReactNode } from "react";
 import { CodeBlock } from "@/components/code-block";
+import { DocsPagerIcons } from "@/components/docs-pager";
 import { Install } from "@/components/install";
 import { external } from "@/lib/links";
 
@@ -50,10 +51,13 @@ const components: MDXComponents = {
 	CodeFile,
 	Install,
 	h1: (props) => (
-		<h1
-			className="text-3xl font-semibold tracking-tight sm:text-4xl"
-			{...props}
-		/>
+		<div className="flex items-start justify-between gap-4">
+			<h1
+				className="text-3xl font-semibold tracking-tight sm:text-4xl"
+				{...props}
+			/>
+			<DocsPagerIcons />
+		</div>
 	),
 	h2: ({ children, ...props }: ComponentProps<"h2">) => (
 		<h2
