@@ -19,7 +19,7 @@ export function Typography() {
 	return (
 		<div className="flex w-full flex-col items-center gap-6 sm:flex-row">
 			<p
-				className="h-40 w-full min-w-0 flex-1 overflow-hidden font-semibold"
+				className="h-40 w-full min-w-0 sm:flex-1 overflow-hidden font-semibold"
 				style={{
 					fontSize: size,
 					lineHeight: leading,

@@ -30,7 +30,7 @@ export function AudioMixer() {
 			<svg
 				viewBox="0 0 240 96"
 				aria-hidden="true"
-				className="h-40 w-full min-w-0 flex-1 rounded-lg bg-neutral-50 dark:bg-neutral-900"
+				className="h-40 w-full min-w-0 sm:flex-1 rounded-lg bg-neutral-50 dark:bg-neutral-900"
 			>
 				<line
 					x1="0"

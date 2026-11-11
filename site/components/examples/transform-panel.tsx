@@ -39,7 +39,7 @@ export function TransformPanel() {
 	});
 	return (
 		<div className="flex w-full flex-col items-center gap-4 sm:flex-row">
-			<div className="relative h-56 w-full min-w-0 flex-1 overflow-hidden rounded-lg bg-neutral-50 dark:bg-neutral-900">
+			<div className="relative h-56 w-full min-w-0 sm:flex-1 overflow-hidden rounded-lg bg-neutral-50 dark:bg-neutral-900">
 				<div
 					className="absolute bg-neutral-900 dark:bg-neutral-100"
 					style={{
