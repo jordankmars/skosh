@@ -1,6 +1,7 @@
 import type { MDXComponents } from "mdx/types";
 import type { ReactElement } from "react";
 import { CodeBlock } from "@/components/code-block";
+import { Install } from "@/components/install";
 import { external } from "@/lib/links";
 
 type Fence = ReactElement<{
@@ -23,6 +24,7 @@ function CodeFile({ name, children }: { name: string; children: Fence }) {
 
 const components: MDXComponents = {
 	CodeFile,
+	Install,
 	h1: (props) => (
 		<h1 className="mb-4 text-3xl font-semibold tracking-tight" {...props} />
 	),
