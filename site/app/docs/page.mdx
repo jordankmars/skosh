@@ -1,19 +1,54 @@
-export const metadata = { title: "Hello World" };
+import { Example } from "@/components/example";
 
-# Hello World
+export const metadata = { title: "Getting Started" };
 
-Welcome to the skosh docs. skosh is a number field you change by dragging its label, like the inspector in a design tool. Drag to scrub, type a value or a bit of math, or step it with the arrow keys.
+# Getting Started
 
-There's more to come. For now, here's the smallest one you can make:
+<Lead>A number field you change by dragging its label.</Lead>
+
+Drag to scrub, type a value or a bit of math, or step it with the arrow keys. It's the field from a design tool's inspector, for anyone building editors and creative apps.
+
+<Example name="size" />
+
+## Installation
+
+Install the package from your command line.
+
+<Install />
+
+## Create a Skosh
+
+Give it a label, a value and a way to change that value. The field is always controlled.
+
+<CodeFile name="width.tsx">
 
 ```tsx
-import { Skosh } from "skosh/react";
 import { useState } from "react";
+import { Skosh } from "skosh/react";
 
-function Inspector() {
+export function Width() {
 	const [width, setWidth] = useState(160);
 	return (
 		<Skosh label="W" value={width} onValueChange={setWidth} min={0} unit="px" />
 	);
 }
 ```
+
+</CodeFile>
+
+## Style it
+
+skosh ships no CSS. `className` goes on the root, and each part has a data attribute to target.
+
+```css
+[data-skosh-root] {
+	display: flex;
+	align-items: center;
+}
+
+[data-skosh-root][data-scrubbing] {
+	background: #eee;
+}
+```
+
+The only styles it sets are the inline ones dragging needs. See [Styling](/docs/styling) for the parts and states.
