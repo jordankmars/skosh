@@ -23,9 +23,17 @@ function Inspector() {
 - Units, precision, and decimal commas in other languages.
 - Works with touch: taps focus the field, horizontal drags scrub and vertical swipes still scroll.
 
-## Status
+## Install
 
-The core and the React component are built, but nothing is published yet.
+```sh
+npm install skosh
+```
+
+The React component needs React 18 or later. Import it from `skosh/react`:
+
+```tsx
+import { Skosh } from "skosh/react";
+```
 
 ## Props
 
@@ -72,7 +80,7 @@ During a mouse drag, a full-window overlay and the drawn cursor are added to the
 
 | Framework | Import path    | Status      |
 | --------- | -------------- | ----------- |
-| React     | `skosh/react`  | Unreleased  |
+| React     | `skosh/react`  | Available   |
 | Vue       | `skosh/vue`    | Coming soon |
 | Svelte    | `skosh/svelte` | Coming soon |
 
