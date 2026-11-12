@@ -1,11 +1,14 @@
 // Dev playground: a small inspector built from the component source.
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { Skosh, type SkoshProps } from "../src/react";
+import { Soupcon, type SoupconProps } from "../src/react";
 
 type FieldKey = "w" | "r" | "rot" | "op";
 
-type FieldConfig = Pick<SkoshProps, "label" | "unit" | "min" | "max" | "perPx">;
+type FieldConfig = Pick<
+	SoupconProps,
+	"label" | "unit" | "min" | "max" | "perPx"
+>;
 
 const FIELDS: Record<FieldKey, FieldConfig> = {
 	w: { label: "W", unit: "px", min: 40, max: 240, perPx: 1 },
@@ -29,7 +32,7 @@ function App() {
 		<main className="wrap">
 			<style>{CSS}</style>
 			<header className="top">
-				<h1>skosh playground</h1>
+				<h1>soupcon playground</h1>
 				<p>
 					Drag a field's label left or right to change it. Hold Shift for ×10
 					and Alt for fine steps, or type a value or a bit of math like 120*2.
@@ -51,7 +54,7 @@ function App() {
 					</div>
 					<div className="panel">
 						{(Object.keys(FIELDS) as FieldKey[]).map((k) => (
-							<Skosh
+							<Soupcon
 								key={k}
 								{...FIELDS[k]}
 								locale={locale}
@@ -116,18 +119,18 @@ input { font: inherit; color: inherit; }
 .preview { display: grid; place-items: center; height: 100%; overflow: hidden; min-width: 0; }
 .shape { width: 160px; aspect-ratio: 1 / 1; max-width: 100%; border-radius: 20px; background: linear-gradient(150deg, var(--accent), #8fb1ff); }
 .panel { background: var(--surface); border-radius: 12px; padding: 8px; display: grid; gap: 4px; }
-[data-skosh-root] { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 4px; border-radius: 7px; padding: 2px 6px 2px 2px; }
-[data-skosh-root]:focus-within { background: var(--stage); box-shadow: inset 0 0 0 1px var(--accent); }
-[data-skosh-root][data-scrubbing] { background: var(--accent-soft); }
-[data-skosh-label] { font-family: var(--mono); font-size: 11px; color: var(--muted); padding: 6px 0 6px 8px; border-radius: 6px; }
-[data-skosh-label]:hover, [data-scrubbing] [data-skosh-label] { color: var(--accent); }
-[data-skosh-input] { width: 100%; min-width: 0; border: 0; background: transparent; font-family: var(--mono); font-size: 13px; padding: 5px 2px; outline: none; font-variant-numeric: tabular-nums; caret-color: var(--accent); }
-[data-skosh-input]::selection { background: var(--accent-soft); }
-[data-skosh-unit] { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+[data-soupcon-root] { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 4px; border-radius: 7px; padding: 2px 6px 2px 2px; }
+[data-soupcon-root]:focus-within { background: var(--stage); box-shadow: inset 0 0 0 1px var(--accent); }
+[data-soupcon-root][data-scrubbing] { background: var(--accent-soft); }
+[data-soupcon-label] { font-family: var(--mono); font-size: 11px; color: var(--muted); padding: 6px 0 6px 8px; border-radius: 6px; }
+[data-soupcon-label]:hover, [data-scrubbing] [data-soupcon-label] { color: var(--accent); }
+[data-soupcon-input] { width: 100%; min-width: 0; border: 0; background: transparent; font-family: var(--mono); font-size: 13px; padding: 5px 2px; outline: none; font-variant-numeric: tabular-nums; caret-color: var(--accent); }
+[data-soupcon-input]::selection { background: var(--accent-soft); }
+[data-soupcon-unit] { font-family: var(--mono); font-size: 11px; color: var(--muted); }
 /* Bigger targets for fingers, and 16px text so iOS doesn't zoom in on focus. */
 @media (pointer: coarse) {
-	[data-skosh-label] { padding-block: 12px; }
-	[data-skosh-input] { font-size: 16px; }
+	[data-soupcon-label] { padding-block: 12px; }
+	[data-soupcon-input] { font-size: 16px; }
 }
 @media (max-width: 420px) { .scrub { grid-template-columns: 1fr 150px; gap: 8px; } }
 `;

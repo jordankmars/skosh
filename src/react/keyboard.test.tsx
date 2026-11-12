@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { Skosh } from "./skosh";
+import { Soupcon } from "./soupcon";
 import {
 	Controlled,
 	type ControlledProps,
@@ -94,7 +94,7 @@ describe("arrow keys", () => {
 	});
 
 	it("shows the host's value when it rejects a step", () => {
-		render(<Skosh label="W" value={10} onValueChange={() => {}} />);
+		render(<Soupcon label="W" value={10} onValueChange={() => {}} />);
 		const input = screen.getByRole<HTMLInputElement>("spinbutton");
 		down(input, "ArrowUp");
 		expect(input.value).toBe("10");

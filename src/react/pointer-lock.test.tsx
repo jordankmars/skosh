@@ -20,8 +20,10 @@ function setup(props: ControlledProps = {}) {
 			{...props}
 		/>,
 	);
-	const handle = view.container.querySelector("[data-skosh-label]") as Element;
-	const root = view.container.querySelector("[data-skosh-root]") as Element;
+	const handle = view.container.querySelector(
+		"[data-soupcon-label]",
+	) as Element;
+	const root = view.container.querySelector("[data-soupcon-root]") as Element;
 	return { ...view, handle, root, onValueChange, onValueCommit };
 }
 
@@ -167,9 +169,9 @@ describe("timing", () => {
 
 describe("the cursor during a drag", () => {
 	const overlay = () =>
-		document.querySelector<HTMLElement>('[data-skosh-cursor="overlay"]');
+		document.querySelector<HTMLElement>('[data-soupcon-cursor="overlay"]');
 	const drawn = () =>
-		document.querySelector<HTMLElement>('[data-skosh-cursor="virtual"]');
+		document.querySelector<HTMLElement>('[data-soupcon-cursor="virtual"]');
 
 	it("covers the page with the resize cursor for a mouse drag", () => {
 		const field = setup({ pointerLock: false });

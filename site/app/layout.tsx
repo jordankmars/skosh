@@ -15,7 +15,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-	title: { default: "Skosh", template: "%s · Skosh" },
+	title: { default: "Soupcon", template: "%s · Soupcon" },
 	description: "A number field you change by dragging its label.",
 };
 

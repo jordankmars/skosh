@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Skosh } from "skosh/react";
+import { Soupcon } from "soupcon/react";
 import { ExampleTabs } from "../example-tabs";
 import { Options } from "./options";
 import { PER_PX, type PerPx } from "./per-px-code";
@@ -17,7 +17,7 @@ export function PerPxPicker({
 
 	const view = (
 		<>
-			<Skosh
+			<Soupcon
 				label="X"
 				aria-label="X position"
 				perPx={perPx}

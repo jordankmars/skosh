@@ -1,6 +1,6 @@
-# skosh site
+# soupcon site
 
-The docs site for skosh: Next.js, statically exported, hosted on Cloudflare.
+The docs site for soupcon: Next.js, statically exported, hosted on Cloudflare.
 
 ```sh
 pnpm site:dev    # from the repo root, builds the library first

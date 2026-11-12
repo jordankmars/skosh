@@ -1,4 +1,4 @@
-# skosh
+# soupcon
 
 [![CI](https://github.com/jordankmars/skosh/actions/workflows/ci.yml/badge.svg)](https://github.com/jordankmars/skosh/actions/workflows/ci.yml)
 
@@ -10,7 +10,13 @@ It's for people building editors, design tools and creative apps:
 function Inspector() {
 	const [width, setWidth] = useState(160);
 	return (
-		<Skosh label="W" value={width} onValueChange={setWidth} min={0} unit="px" />
+		<Soupcon
+			label="W"
+			value={width}
+			onValueChange={setWidth}
+			min={0}
+			unit="px"
+		/>
 	);
 }
 ```
@@ -26,13 +32,13 @@ function Inspector() {
 ## Install
 
 ```sh
-npm install skosh
+npm install soupcon
 ```
 
-The React component needs React 18 or later. Import it from `skosh/react`:
+The React component needs React 18 or later. Import it from `soupcon/react`:
 
 ```tsx
-import { Skosh } from "skosh/react";
+import { Soupcon } from "soupcon/react";
 ```
 
 ## Props
@@ -59,30 +65,30 @@ The ref, ARIA props, `id` and `name` go to the input. Everything else, like `cla
 
 The component ships no CSS. It only sets the inline styles dragging needs, so the look is up to you. Each part has a data attribute to target:
 
-| Part        | Selector             |
-| ----------- | -------------------- |
-| Root        | `[data-skosh-root]`  |
-| Drag handle | `[data-skosh-label]` |
-| Input       | `[data-skosh-input]` |
-| Unit        | `[data-skosh-unit]`  |
+| Part        | Selector               |
+| ----------- | ---------------------- |
+| Root        | `[data-soupcon-root]`  |
+| Drag handle | `[data-soupcon-label]` |
+| Input       | `[data-soupcon-input]` |
+| Unit        | `[data-soupcon-unit]`  |
 
 The root also gets `data-scrubbing`, `data-editing`, `data-disabled` or `data-readonly` while each is true:
 
 ```css
-[data-skosh-root][data-scrubbing] {
+[data-soupcon-root][data-scrubbing] {
 	background: #eee;
 }
 ```
 
-During a mouse drag, a full-window overlay and the drawn cursor are added to the page. They're marked `[data-skosh-cursor="overlay"]` and `[data-skosh-cursor="virtual"]`.
+During a mouse drag, a full-window overlay and the drawn cursor are added to the page. They're marked `[data-soupcon-cursor="overlay"]` and `[data-soupcon-cursor="virtual"]`.
 
 ## Adapters
 
-| Framework | Import path    | Status      |
-| --------- | -------------- | ----------- |
-| React     | `skosh/react`  | Available   |
-| Vue       | `skosh/vue`    | Coming soon |
-| Svelte    | `skosh/svelte` | Coming soon |
+| Framework | Import path      | Status      |
+| --------- | ---------------- | ----------- |
+| React     | `soupcon/react`  | Available   |
+| Vue       | `soupcon/vue`    | Coming soon |
+| Svelte    | `soupcon/svelte` | Coming soon |
 
 ## Development
 

@@ -3,7 +3,7 @@ import { act, screen } from "@testing-library/react";
 import { hydrateRoot, type Root } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Skosh } from "./skosh";
+import { Soupcon } from "./soupcon";
 import { setupFakeBrowser } from "./test-harness";
 
 setupFakeBrowser();
@@ -31,7 +31,7 @@ function useGermanRuntime() {
 describe("hydrating server output", () => {
 	it("matches the server, then switches to the browser's locale", () => {
 		const element = (
-			<Skosh label="W" value={1.5} step={0.1} onValueChange={() => {}} />
+			<Soupcon label="W" value={1.5} step={0.1} onValueChange={() => {}} />
 		);
 		const server = renderToString(element);
 		expect(server).toContain('value="1.5"');

@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Skosh } from "skosh/react";
+import { Soupcon } from "soupcon/react";
 
 const field = [
 	"flex h-8 items-center rounded-md bg-neutral-100 dark:bg-neutral-900",
 	"data-scrubbing:bg-neutral-200 dark:data-scrubbing:bg-neutral-800",
-	"*:data-skosh-label:grid *:data-skosh-label:h-full *:data-skosh-label:w-7 *:data-skosh-label:place-items-center *:data-skosh-label:text-[11px] *:data-skosh-label:text-neutral-500",
-	"*:data-skosh-input:w-full *:data-skosh-input:min-w-0 *:data-skosh-input:pr-2 *:data-skosh-input:font-mono *:data-skosh-input:text-xs *:data-skosh-input:outline-none",
+	"*:data-soupcon-label:grid *:data-soupcon-label:h-full *:data-soupcon-label:w-7 *:data-soupcon-label:place-items-center *:data-soupcon-label:text-[11px] *:data-soupcon-label:text-neutral-500",
+	"*:data-soupcon-input:w-full *:data-soupcon-input:min-w-0 *:data-soupcon-input:pr-2 *:data-soupcon-input:font-mono *:data-soupcon-input:text-xs *:data-soupcon-input:outline-none",
 ].join(" ");
 
 export function Size() {
@@ -15,7 +15,7 @@ export function Size() {
 	const [height, setHeight] = useState(120);
 	return (
 		<div className="grid w-60 grid-cols-2 gap-2">
-			<Skosh
+			<Soupcon
 				label="W"
 				aria-label="Width"
 				min={0}
@@ -23,7 +23,7 @@ export function Size() {
 				onValueChange={setWidth}
 				className={field}
 			/>
-			<Skosh
+			<Soupcon
 				label="H"
 				aria-label="Height"
 				min={0}
