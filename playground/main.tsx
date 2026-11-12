@@ -1,4 +1,4 @@
-// Dev playground: a small inspector built from the published component.
+// Dev playground: a small inspector built from the component source.
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Skosh, type SkoshProps } from "../src/react";
