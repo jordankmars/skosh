@@ -49,24 +49,18 @@ The ref, ARIA props, `id` and `name` go to the input. Everything else, like `cla
 
 The component ships no CSS. It only sets the inline styles dragging needs, so the look is up to you. Each part has a data attribute to target:
 
-```css
-[data-skosh-root] {
-}
-[data-skosh-label] {
-}
-[data-skosh-input] {
-}
-[data-skosh-unit] {
-}
+| Part        | Selector             |
+| ----------- | -------------------- |
+| Root        | `[data-skosh-root]`  |
+| Drag handle | `[data-skosh-label]` |
+| Input       | `[data-skosh-input]` |
+| Unit        | `[data-skosh-unit]`  |
 
-/* States, set on the root */
+The root also gets `data-scrubbing`, `data-editing`, `data-disabled` or `data-readonly` while each is true:
+
+```css
 [data-skosh-root][data-scrubbing] {
-}
-[data-skosh-root][data-editing] {
-}
-[data-skosh-root][data-disabled] {
-}
-[data-skosh-root][data-readonly] {
+	background: #eee;
 }
 ```
 
