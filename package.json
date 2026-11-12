@@ -1,9 +1,16 @@
 {
 	"name": "skosh",
 	"version": "0.0.0",
-	"description": "",
+	"description": "A number field you change by dragging its label, like the inspector in a design tool.",
 	"keywords": [
-		"react"
+		"react",
+		"number-input",
+		"scrub",
+		"scrubber",
+		"drag",
+		"inspector",
+		"pointer-lock",
+		"design-tools"
 	],
 	"homepage": "https://github.com/jordankmars/skosh#readme",
 	"bugs": {
