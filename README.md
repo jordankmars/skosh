@@ -1,5 +1,7 @@
 # skosh
 
+[![CI](https://github.com/jordankmars/skosh/actions/workflows/ci.yml/badge.svg)](https://github.com/jordankmars/skosh/actions/workflows/ci.yml)
+
 > A number field you change by dragging its label, like the inspector in a design tool.
 
 It's for people building editors, design tools and creative apps:
@@ -49,24 +51,18 @@ The ref, ARIA props, `id` and `name` go to the input. Everything else, like `cla
 
 The component ships no CSS. It only sets the inline styles dragging needs, so the look is up to you. Each part has a data attribute to target:
 
-```css
-[data-skosh-root] {
-}
-[data-skosh-label] {
-}
-[data-skosh-input] {
-}
-[data-skosh-unit] {
-}
+| Part        | Selector             |
+| ----------- | -------------------- |
+| Root        | `[data-skosh-root]`  |
+| Drag handle | `[data-skosh-label]` |
+| Input       | `[data-skosh-input]` |
+| Unit        | `[data-skosh-unit]`  |
 
-/* States, set on the root */
+The root also gets `data-scrubbing`, `data-editing`, `data-disabled` or `data-readonly` while each is true:
+
+```css
 [data-skosh-root][data-scrubbing] {
-}
-[data-skosh-root][data-editing] {
-}
-[data-skosh-root][data-disabled] {
-}
-[data-skosh-root][data-readonly] {
+	background: #eee;
 }
 ```
 
@@ -95,7 +91,7 @@ The core lives in `src/core` and has no DOM code in it. It takes pointer deltas,
 
 ## Contributing
 
-Contributions are welcome. Please open an issue to discuss changes before submitting a pull request.
+Bug reports and pull requests are welcome. For a new prop or a change in behavior, open an issue first so we can agree on the API. Run `pnpm lint`, `pnpm typecheck` and `pnpm test` before you push. CI runs the same checks.
 
 ## License
 
