@@ -15,7 +15,7 @@ Pick a `perPx` below and drag the X.
 Each pixel you drag adds `perPx` to a running total, and the value shown snaps to `step`. Both default to 1, so one pixel is one unit.
 
 ```tsx
-<Skosh label="Hz" step={1} perPx={10} value={hz} onValueChange={setHz} />
+<Soupcon label="Hz" step={1} perPx={10} value={hz} onValueChange={setHz} />
 ```
 
 Raise `perPx` for wide ranges, and lower it for a value that needs a steady hand.
@@ -39,7 +39,7 @@ With a mouse, the drag asks the browser for pointer lock once it starts moving. 
 If the browser refuses the lock, the drag carries on and stops at the window edge. Pass `pointerLock={false}` to always work that way.
 
 ```tsx
-<Skosh label="X" pointerLock={false} value={x} onValueChange={setX} />
+<Soupcon label="X" pointerLock={false} value={x} onValueChange={setX} />
 ```
 
 ## Touch

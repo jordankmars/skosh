@@ -16,7 +16,7 @@ Install the package from your command line.
 
 <Install />
 
-## Create a Skosh
+## Create a Soupcon
 
 Give it a label, a value and a way to change that value. The field is always controlled.
 
@@ -24,12 +24,12 @@ Give it a label, a value and a way to change that value. The field is always con
 
 ```tsx
 import { useState } from "react";
-import { Skosh } from "skosh/react";
+import { Soupcon } from "soupcon/react";
 
 export function Width() {
 	const [width, setWidth] = useState(160);
 	return (
-		<Skosh label="W" value={width} onValueChange={setWidth} min={0} unit="px" />
+		<Soupcon label="W" value={width} onValueChange={setWidth} min={0} unit="px" />
 	);
 }
 ```
@@ -38,15 +38,15 @@ export function Width() {
 
 ## Style it
 
-skosh ships no CSS. `className` goes on the root, and each part has a data attribute to target.
+soupcon ships no CSS. `className` goes on the root, and each part has a data attribute to target.
 
 ```css
-[data-skosh-root] {
+[data-soupcon-root] {
 	display: flex;
 	align-items: center;
 }
 
-[data-skosh-root][data-scrubbing] {
+[data-soupcon-root][data-scrubbing] {
 	background: #eee;
 }
 ```

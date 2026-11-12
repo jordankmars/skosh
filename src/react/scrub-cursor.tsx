@@ -49,9 +49,9 @@ interface ScrubCursorProps {
 export function ScrubCursor({ target, locked, cursorRef }: ScrubCursorProps) {
 	return createPortal(
 		<>
-			<div data-skosh-cursor="overlay" style={overlayStyle} />
+			<div data-soupcon-cursor="overlay" style={overlayStyle} />
 			{locked ? (
-				<div data-skosh-cursor="virtual" ref={cursorRef} style={virtualStyle}>
+				<div data-soupcon-cursor="virtual" ref={cursorRef} style={virtualStyle}>
 					<Arrows />
 				</div>
 			) : null}

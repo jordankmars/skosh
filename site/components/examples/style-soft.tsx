@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Skosh } from "skosh/react";
+import { Soupcon } from "soupcon/react";
 
 const field = [
 	"flex h-11 items-center rounded-full bg-white text-sm font-medium text-slate-700 shadow-[0_8px_24px_rgba(15,23,42,0.12)]",
 	"focus-within:shadow-[0_8px_24px_rgba(99,102,241,0.35)] data-scrubbing:shadow-[0_16px_40px_rgba(15,23,42,0.22)]",
-	"*:data-skosh-label:grid *:data-skosh-label:h-full *:data-skosh-label:w-10 *:data-skosh-label:shrink-0 *:data-skosh-label:place-items-center *:data-skosh-label:text-slate-400",
-	"*:data-skosh-input:w-full *:data-skosh-input:min-w-0 *:data-skosh-input:pr-4 *:data-skosh-input:outline-none",
+	"*:data-soupcon-label:grid *:data-soupcon-label:h-full *:data-soupcon-label:w-10 *:data-soupcon-label:shrink-0 *:data-soupcon-label:place-items-center *:data-soupcon-label:text-slate-400",
+	"*:data-soupcon-input:w-full *:data-soupcon-input:min-w-0 *:data-soupcon-input:pr-4 *:data-soupcon-input:outline-none",
 ].join(" ");
 
 export function StyleSoft() {
@@ -17,14 +17,14 @@ export function StyleSoft() {
 		<>
 			<div className="absolute inset-0 rounded-xl bg-indigo-50" />
 			<div className="relative grid w-64 grid-cols-2 gap-3">
-				<Skosh
+				<Soupcon
 					label="W"
 					aria-label="Width"
 					value={width}
 					onValueChange={setWidth}
 					className={field}
 				/>
-				<Skosh
+				<Soupcon
 					label="H"
 					aria-label="Height"
 					value={height}

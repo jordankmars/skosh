@@ -2,25 +2,25 @@ export const metadata = { title: "API" };
 
 # API
 
-<Lead>The Skosh component and the props it takes.</Lead>
+<Lead>The Soupcon component and the props it takes.</Lead>
 
 ## Anatomy
 
-Import `Skosh` and give it a label, a value and a change handler.
+Import `Soupcon` and give it a label, a value and a change handler.
 
 ```tsx
-import { Skosh } from "skosh/react";
+import { Soupcon } from "soupcon/react";
 
-<Skosh label="W" value={width} onValueChange={setWidth} />;
+<Soupcon label="W" value={width} onValueChange={setWidth} />;
 ```
 
 It renders a `label` holding the drag handle, the input and the unit.
 
 ```html
-<label data-skosh-root>
-	<span data-skosh-label>W</span>
-	<input data-skosh-input />
-	<span data-skosh-unit>px</span>
+<label data-soupcon-root>
+	<span data-soupcon-label>W</span>
+	<input data-soupcon-input />
+	<span data-soupcon-unit>px</span>
 </label>
 ```
 
@@ -82,7 +82,7 @@ The ref, ARIA props, `id` and `name` go to the input. Everything else, like `cla
 ```tsx
 const input = useRef<HTMLInputElement>(null);
 
-<Skosh ref={input} id="width" className="field" {...props} />;
+<Soupcon ref={input} id="width" className="field" {...props} />;
 ```
 
 ## Accessibility
@@ -93,4 +93,4 @@ The input is a `spinbutton` with its range and current value set, and the unit i
 
 - `min` and `max` apply to drags, arrow keys and typed values.
 - Rendered on the server, the value is formatted as `en-US` until the browser's locale takes over. Pass `locale` to keep it fixed.
-- During a mouse drag, a full-window overlay and a drawn cursor are added to the page. They're marked `[data-skosh-cursor="overlay"]` and `[data-skosh-cursor="virtual"]`.
+- During a mouse drag, a full-window overlay and a drawn cursor are added to the page. They're marked `[data-soupcon-cursor="overlay"]` and `[data-soupcon-cursor="virtual"]`.

@@ -1,15 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Skosh } from "skosh/react";
+import { Soupcon } from "soupcon/react";
 
 const field = [
 	"flex h-8 items-center rounded-md bg-neutral-100 dark:bg-neutral-900",
 	"focus-within:shadow-[inset_0_0_0_1px_var(--color-neutral-400)] dark:focus-within:shadow-[inset_0_0_0_1px_var(--color-neutral-600)]",
 	"data-scrubbing:bg-neutral-200 dark:data-scrubbing:bg-neutral-800",
-	"*:data-skosh-label:grid *:data-skosh-label:h-full *:data-skosh-label:w-14 *:data-skosh-label:shrink-0 *:data-skosh-label:place-items-center *:data-skosh-label:text-[11px] *:data-skosh-label:text-neutral-500 dark:*:data-skosh-label:text-neutral-400",
-	"*:data-skosh-input:w-full *:data-skosh-input:min-w-0 *:data-skosh-input:pr-1 *:data-skosh-input:font-mono *:data-skosh-input:text-xs *:data-skosh-input:tabular-nums *:data-skosh-input:outline-none",
-	"*:data-skosh-unit:pr-2 *:data-skosh-unit:font-mono *:data-skosh-unit:text-[11px] *:data-skosh-unit:text-neutral-500",
+	"*:data-soupcon-label:grid *:data-soupcon-label:h-full *:data-soupcon-label:w-14 *:data-soupcon-label:shrink-0 *:data-soupcon-label:place-items-center *:data-soupcon-label:text-[11px] *:data-soupcon-label:text-neutral-500 dark:*:data-soupcon-label:text-neutral-400",
+	"*:data-soupcon-input:w-full *:data-soupcon-input:min-w-0 *:data-soupcon-input:pr-1 *:data-soupcon-input:font-mono *:data-soupcon-input:text-xs *:data-soupcon-input:tabular-nums *:data-soupcon-input:outline-none",
+	"*:data-soupcon-unit:pr-2 *:data-soupcon-unit:font-mono *:data-soupcon-unit:text-[11px] *:data-soupcon-unit:text-neutral-500",
 ].join(" ");
 
 export function Typography() {
@@ -29,7 +29,7 @@ export function Typography() {
 				Good type is mostly small adjustments.
 			</p>
 			<div className="grid w-full gap-2 sm:w-44 sm:shrink-0">
-				<Skosh
+				<Soupcon
 					label="Size"
 					aria-label="Font size"
 					min={8}
@@ -39,7 +39,7 @@ export function Typography() {
 					onValueChange={setSize}
 					className={field}
 				/>
-				<Skosh
+				<Soupcon
 					label="Line"
 					aria-label="Line height"
 					min={0.8}
@@ -51,7 +51,7 @@ export function Typography() {
 					onValueChange={setLeading}
 					className={field}
 				/>
-				<Skosh
+				<Soupcon
 					label="Track"
 					aria-label="Letter spacing"
 					min={-0.1}

@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Skosh } from "skosh/react";
+import { Soupcon } from "soupcon/react";
 
 const field = [
 	"flex h-8 items-center rounded-md bg-neutral-100 dark:bg-neutral-900",
 	"focus-within:shadow-[inset_0_0_0_1px_var(--color-neutral-400)] dark:focus-within:shadow-[inset_0_0_0_1px_var(--color-neutral-600)]",
 	"data-scrubbing:bg-neutral-200 dark:data-scrubbing:bg-neutral-800",
-	"*:data-skosh-label:grid *:data-skosh-label:h-full *:data-skosh-label:w-7 *:data-skosh-label:place-items-center *:data-skosh-label:text-[11px] *:data-skosh-label:text-neutral-500 dark:*:data-skosh-label:text-neutral-400",
-	"*:data-skosh-input:w-full *:data-skosh-input:min-w-0 *:data-skosh-input:pr-2 *:data-skosh-input:font-mono *:data-skosh-input:text-xs *:data-skosh-input:tabular-nums *:data-skosh-input:outline-none",
+	"*:data-soupcon-label:grid *:data-soupcon-label:h-full *:data-soupcon-label:w-7 *:data-soupcon-label:place-items-center *:data-soupcon-label:text-[11px] *:data-soupcon-label:text-neutral-500 dark:*:data-soupcon-label:text-neutral-400",
+	"*:data-soupcon-input:w-full *:data-soupcon-input:min-w-0 *:data-soupcon-input:pr-2 *:data-soupcon-input:font-mono *:data-soupcon-input:text-xs *:data-soupcon-input:tabular-nums *:data-soupcon-input:outline-none",
 ].join(" ");
 
 export function StyleSite() {
@@ -16,14 +16,14 @@ export function StyleSite() {
 	const [height, setHeight] = useState(120);
 	return (
 		<div className="grid w-60 grid-cols-2 gap-2">
-			<Skosh
+			<Soupcon
 				label="W"
 				aria-label="Width"
 				value={width}
 				onValueChange={setWidth}
 				className={field}
 			/>
-			<Skosh
+			<Soupcon
 				label="H"
 				aria-label="Height"
 				value={height}

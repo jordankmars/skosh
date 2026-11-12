@@ -89,7 +89,7 @@ importers:
       shiki:
         specifier: 4.6.0
         version: 4.6.0
-      skosh:
+      soupcon:
         specifier: workspace:*
         version: link:..
     devDependencies:

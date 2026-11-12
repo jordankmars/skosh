@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Skosh } from "skosh/react";
+import { Soupcon } from "soupcon/react";
 import { ExampleTabs } from "../example-tabs";
 import { LOCALES, type Locale } from "./locale-code";
 import { Options } from "./options";
@@ -17,7 +17,7 @@ export function LocalePicker({
 
 	const view = (
 		<>
-			<Skosh
+			<Soupcon
 				label="S"
 				aria-label="Size"
 				locale={locale}

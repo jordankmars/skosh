@@ -2,10 +2,10 @@ import { highlight } from "@/lib/highlight";
 import { InstallTabs } from "./install-tabs";
 
 const COMMANDS = [
-	["pnpm", "pnpm add skosh"],
-	["npm", "npm install skosh"],
-	["yarn", "yarn add skosh"],
-	["bun", "bun add skosh"],
+	["pnpm", "pnpm add soupcon"],
+	["npm", "npm install soupcon"],
+	["yarn", "yarn add soupcon"],
+	["bun", "bun add soupcon"],
 ] as const;
 
 export async function Install() {

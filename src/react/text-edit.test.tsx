@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { Skosh } from "./skosh";
+import { Soupcon } from "./soupcon";
 import {
 	Controlled,
 	type ControlledProps,
@@ -123,11 +123,11 @@ describe("focus without typing", () => {
 	it("shows outside changes and doesn't overwrite them on blur", () => {
 		const onValueChange = vi.fn();
 		const { rerender } = render(
-			<Skosh label="W" value={10} onValueChange={onValueChange} />,
+			<Soupcon label="W" value={10} onValueChange={onValueChange} />,
 		);
 		const input = screen.getByRole<HTMLInputElement>("spinbutton");
 		act(() => input.focus());
-		rerender(<Skosh label="W" value={99} onValueChange={onValueChange} />);
+		rerender(<Soupcon label="W" value={99} onValueChange={onValueChange} />);
 		expect(input.value).toBe("99");
 		act(() => input.blur());
 		expect(onValueChange).not.toHaveBeenCalled();
@@ -135,7 +135,7 @@ describe("focus without typing", () => {
 
 	it("marks the field as editing while focused", () => {
 		const { input } = setup();
-		const root = input.closest("[data-skosh-root]");
+		const root = input.closest("[data-soupcon-root]");
 		expect(root?.hasAttribute("data-editing")).toBe(true);
 		act(() => input.blur());
 		expect(root?.hasAttribute("data-editing")).toBe(false);
@@ -145,13 +145,15 @@ describe("focus without typing", () => {
 describe("becoming disabled while focused", () => {
 	it("stops marking the field as editing", () => {
 		const { container, rerender } = render(
-			<Skosh label="W" value={10} onValueChange={() => {}} />,
+			<Soupcon label="W" value={10} onValueChange={() => {}} />,
 		);
 		const input = screen.getByRole<HTMLInputElement>("spinbutton");
 		act(() => input.focus());
-		const root = container.querySelector("[data-skosh-root]");
+		const root = container.querySelector("[data-soupcon-root]");
 		expect(root?.hasAttribute("data-editing")).toBe(true);
-		rerender(<Skosh label="W" value={10} onValueChange={() => {}} disabled />);
+		rerender(
+			<Soupcon label="W" value={10} onValueChange={() => {}} disabled />,
+		);
 		expect(root?.hasAttribute("data-editing")).toBe(false);
 	});
 });
@@ -160,13 +162,13 @@ describe("becoming read-only while typing", () => {
 	it("drops the text without committing", () => {
 		const onValueChange = vi.fn();
 		const { rerender } = render(
-			<Skosh label="W" value={10} onValueChange={onValueChange} />,
+			<Soupcon label="W" value={10} onValueChange={onValueChange} />,
 		);
 		const input = screen.getByRole<HTMLInputElement>("spinbutton");
 		act(() => input.focus());
 		type(input, "50");
 		rerender(
-			<Skosh label="W" value={10} onValueChange={onValueChange} readOnly />,
+			<Soupcon label="W" value={10} onValueChange={onValueChange} readOnly />,
 		);
 		expect(input.value).toBe("10");
 		act(() => input.blur());

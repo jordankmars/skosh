@@ -17,8 +17,10 @@ function setup(props: ControlledProps = {}) {
 	const shared = { onValueChange, onValueCommit, pointerLock: false };
 	const view = render(<Controlled {...shared} {...props} />);
 	const input = screen.getByRole<HTMLInputElement>("spinbutton");
-	const handle = view.container.querySelector("[data-skosh-label]") as Element;
-	const root = view.container.querySelector("[data-skosh-root]") as Element;
+	const handle = view.container.querySelector(
+		"[data-soupcon-label]",
+	) as Element;
+	const root = view.container.querySelector("[data-soupcon-root]") as Element;
 	const rerender = (next: ControlledProps) =>
 		view.rerender(<Controlled {...shared} {...props} {...next} />);
 	return {
@@ -105,7 +107,7 @@ describe("dragging with a mouse", () => {
 				<Controlled pointerLock={false} onValueCommit={onValueCommit} />
 			</StrictMode>,
 		);
-		const handle = container.querySelector("[data-skosh-label]") as Element;
+		const handle = container.querySelector("[data-soupcon-label]") as Element;
 		firePointer(handle, "pointerdown", { clientX: 100 });
 		firePointer(handle, "pointermove", { clientX: 110 });
 		firePointer(handle, "pointerup", { clientX: 110 });

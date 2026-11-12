@@ -3,7 +3,7 @@
 import { act, cleanup } from "@testing-library/react";
 import { useState } from "react";
 import { afterEach, beforeEach } from "vitest";
-import { Skosh, type SkoshProps } from "./skosh";
+import { Soupcon, type SoupconProps } from "./soupcon";
 
 export interface FakeBrowser {
 	/** Elements still waiting on a lock answer, oldest first. */
@@ -160,7 +160,7 @@ export function firePointer(
 	return event;
 }
 
-export type ControlledProps = Partial<SkoshProps> & { initial?: number };
+export type ControlledProps = Partial<SoupconProps> & { initial?: number };
 
 /** A field that holds its own value, the way a host app would. */
 export function Controlled({
@@ -170,7 +170,7 @@ export function Controlled({
 }: ControlledProps) {
 	const [value, setValue] = useState(initial);
 	return (
-		<Skosh
+		<Soupcon
 			label="W"
 			value={value}
 			onValueChange={(next) => {
