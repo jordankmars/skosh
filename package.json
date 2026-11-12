@@ -12,13 +12,13 @@
 		"pointer-lock",
 		"design-tools"
 	],
-	"homepage": "https://github.com/jordankmars/skosh#readme",
+	"homepage": "https://github.com/jordankmars/soupcon#readme",
 	"bugs": {
-		"url": "https://github.com/jordankmars/skosh/issues"
+		"url": "https://github.com/jordankmars/soupcon/issues"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/jordankmars/skosh.git"
+		"url": "git+https://github.com/jordankmars/soupcon.git"
 	},
 	"author": "Jordan Mars",
 	"license": "MIT",

@@ -1,6 +1,6 @@
 # soupcon
 
-[![CI](https://github.com/jordankmars/skosh/actions/workflows/ci.yml/badge.svg)](https://github.com/jordankmars/skosh/actions/workflows/ci.yml)
+[![CI](https://github.com/jordankmars/soupcon/actions/workflows/ci.yml/badge.svg)](https://github.com/jordankmars/soupcon/actions/workflows/ci.yml)
 
 > A number field you change by dragging its label, like the inspector in a design tool.
 
