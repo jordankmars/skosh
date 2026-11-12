@@ -19,6 +19,20 @@ export interface ParseOptions {
 const BIDI_MARKS = /[\u200e\u200f\u061c]/g;
 const UNICODE_MINUS = /\u2212/g;
 
+// Characters that look alike and stand in for each other as group separators.
+// Swiss German uses ’ or ', depending on the CLDR version, and French spaces
+// can be normal, no-break or narrow no-break.
+const APOSTROPHES = "'\u2019\u02bc";
+const SPACES = " \u00a0\u202f";
+
+function stripGroup(text: string, group: string): string {
+	for (const family of [APOSTROPHES, SPACES]) {
+		if (family.includes(group))
+			return text.replace(new RegExp(`[${family}]`, "g"), "");
+	}
+	return text.split(group).join("");
+}
+
 const formatters = new Map<string, Intl.NumberFormat>();
 
 function getFormatter(
@@ -89,10 +103,10 @@ function normalize(text: string, locale?: string): string {
 		.replace(UNICODE_MINUS, "-")
 		.replace(/\u066b/g, ".");
 	if (decimal === ",") {
-		if (group !== ".") out = out.split(group).join("");
+		if (group !== ".") out = stripGroup(out, group);
 		return out.replace(/,/g, ".");
 	}
-	return out.split(group).join("");
+	return stripGroup(out, group);
 }
 
 /** Turns typed text into a number, allowing a trailing unit, locale decimals and simple math. Returns null if it can't. */
