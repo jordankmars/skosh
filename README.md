@@ -1,5 +1,7 @@
 # skosh
 
+[![CI](https://github.com/jordankmars/skosh/actions/workflows/ci.yml/badge.svg)](https://github.com/jordankmars/skosh/actions/workflows/ci.yml)
+
 > A number field you change by dragging its label, like the inspector in a design tool.
 
 It's for people building editors, design tools and creative apps:
@@ -89,7 +91,7 @@ The core lives in `src/core` and has no DOM code in it. It takes pointer deltas,
 
 ## Contributing
 
-Contributions are welcome. Please open an issue to discuss changes before submitting a pull request.
+Bug reports and pull requests are welcome. For a new prop or a change in behavior, open an issue first so we can agree on the API. Run `pnpm lint`, `pnpm typecheck` and `pnpm test` before you push. CI runs the same checks.
 
 ## License
 
