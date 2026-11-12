@@ -90,6 +90,8 @@ describe("locales", () => {
 	it("drops thousands separators", () => {
 		expect(parseValue("1,200", en)).toBe(1200);
 		expect(parseValue("1’200", { locale: "de-CH" })).toBe(1200);
+		expect(parseValue("1'200", { locale: "de-CH" })).toBe(1200);
+		expect(parseValue("1 200,5", { locale: "fr-FR" })).toBe(1200.5);
 	});
 
 	it("reads the Unicode minus sign", () => {
