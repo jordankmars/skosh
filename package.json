@@ -1,6 +1,6 @@
 {
 	"name": "soupcon",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "A number field you change by dragging its label, like the inspector in a design tool.",
 	"keywords": [
 		"react",
